@@ -1,0 +1,107 @@
+# === ОСНОВНОЕ ===
+*.iml
+.gradle/
+.idea/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Android Studio
+.local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+/.idea/misc.xml
+
+# Kotlin и Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Log и temp
+*.log
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+*.orig
+
+# Конфиденциальные файлы
+secret.properties
+keystore.jks
+*.keystore
+*.jks
+*.pem
+*.key
+*.crt
+
+# OS-specific
+Thumbs.db
+ehthumbs.db
+.DS_Store
+.Spotlight-V100
+.Trashes
+Icon?
+._*
+
+# Gradle
+.gradle/
+build/
+*/build/
+!gradle-wrapper.jar
+.gradle-cache/
+
+# NDK / CMake
+obj/
+*.so
+*.o
+*.a
+
+# Локальные настройки
+*.apk
+*.ap_
+*.dex
+*.class
+*.pyc
+*.pyo
+*.ipch
+*.rsp
+*.sdf
+*.suo
+*.user
+*.sln
+*.VC.db
+
+# IntelliJ
+out/
+.idea_modules/
+
+# Android Test
+test-output/
+
+# VSCode (если используется)
+.vscode/
+
+# Fastlane (если используешь для CI/CD)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Firebase / Crashlytics
+google-services.json
+fabric.properties
+
+# Сгенерированные API
+.openapi-generator/
+swagger-codegen/
+
+# Temporary files
+*.tmp
+*.bak
+*.un~
