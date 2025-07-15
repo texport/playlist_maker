@@ -20,9 +20,10 @@
     <ImageView
         android:id="@+id/icon"
         style="@style/Settings_Item_Icon"
-        android:src="@drawable/ic_arrow"
+        android:src="@drawable/ic_arrow_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:tint="@color/icons_color" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

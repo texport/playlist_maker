@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/second_background"
-        app:navigationIcon="@drawable/ic_back"
+        app:navigationIcon="@drawable/ic_arrow_back_24"
         app:navigationIconTint="@color/main_text_color"
         app:title="@string/settings"
         app:titleTextAppearance="@style/Text_YS_Bold_24"
