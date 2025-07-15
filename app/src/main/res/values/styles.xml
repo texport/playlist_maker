@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Button_WhiteRounded" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@null</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="elevation">0dp</item>
+        <item name="android:background">@drawable/rounded_button</item>
+
+        <!-- Иконка и её параметры -->
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconTint">@color/black</item>
+
+        <!-- Подключаем стиль текста -->
+        <item name="android:textAppearance">@style/Text_YS_Medium_22</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Settings_Item_Text">
+        <item name="android:textColor">@color/main_text_color</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:fontFamily">@font/ys_regular</item>
+    </style>
+
+    <style name="Settings_Item_Icon">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:tint">@color/main_text_color</item>
+    </style>
+
+    <style name="Settings_Item_Container_Tight">
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">@color/second_background</item>
+    </style>
+
+    <style name="Settings_Item_Container">
+        <item name="android:paddingTop">21dp</item>
+        <item name="android:paddingBottom">21dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">@color/second_background</item>
+    </style>
+
+    <!-- YS Bold -->
+    <style name="Text_YS_Bold_32">
+        <item name="android:fontFamily">@font/ys_bold</item>
+        <item name="android:textSize">@dimen/text_size_32</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text_YS_Bold_24">
+        <item name="android:fontFamily">@font/ys_bold</item>
+        <item name="android:textSize">@dimen/text_size_24</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- YS Medium -->
+    <style name="Text_YS_Medium_22">
+        <item name="android:fontFamily">@font/ys_medium</item>
+        <item name="android:textSize">@dimen/text_size_22</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Text_YS_Medium_19">
+        <item name="android:fontFamily">@font/ys_medium</item>
+        <item name="android:textSize">@dimen/text_size_19</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Text_YS_Medium_16">
+        <item name="android:fontFamily">@font/ys_medium</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Text_YS_Medium_14">
+        <item name="android:fontFamily">@font/ys_medium</item>
+        <item name="android:textSize">@dimen/text_size_14</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <!-- YS Regular -->
+    <style name="Text_YS_Regular_18">
+        <item name="android:fontFamily">@font/ys_regular</item>
+        <item name="android:textSize">@dimen/text_size_18</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Text_YS_Regular_16">
+        <item name="android:fontFamily">@font/ys_regular</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Text_YS_Regular_14">
+        <item name="android:fontFamily">@font/ys_regular</item>
+        <item name="android:textSize">@dimen/text_size_14</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Text_YS_Regular_13">
+        <item name="android:fontFamily">@font/ys_regular</item>
+        <item name="android:textSize">@dimen/text_size_13</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Text_YS_Regular_12">
+        <item name="android:fontFamily">@font/ys_regular</item>
+        <item name="android:textSize">@dimen/text_size_12</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Text_YS_Regular_11">
+        <item name="android:fontFamily">@font/ys_regular</item>
+        <item name="android:textSize">@dimen/text_size_11</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+</resources>

@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/second_background"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/main_text_color"
+        app:title="@string/settings"
+        app:titleTextAppearance="@style/Text_YS_Bold_24"
+        app:titleTextColor="@color/main_text_color" />
+
+    <include layout="@layout/settings_item_switch" />
+    <include layout="@layout/settings_item_share" />
+    <include layout="@layout/settings_item_support" />
+    <include layout="@layout/settings_item_license" />
+
+</LinearLayout>
