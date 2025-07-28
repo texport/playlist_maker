@@ -14,24 +14,17 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-
         val searchButton = findViewById<Button>(R.id.searchButton)
         val mediaButton = findViewById<Button>(R.id.mediaButton)
         val settingsButton = findViewById<Button>(R.id.settingsButton)
 
-        settingsButton.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-        }
+        settingsButton.setOnClickListener { navigateTo(SettingsActivity::class.java) }
+        mediaButton.setOnClickListener { navigateTo(MediaActivity::class.java) }
+        searchButton.setOnClickListener { navigateTo(SearchActivity::class.java) }
+    }
 
-        mediaButton.setOnClickListener {
-            val intent = Intent(this, MediaActivity::class.java)
-            startActivity(intent)
-        }
-
-        searchButton.setOnClickListener {
-            val intent = Intent(this, SearchActivity::class.java)
-            startActivity(intent)
-        }
+    private fun navigateTo(activityClass: Class<*>) {
+        val intent = Intent(this, activityClass)
+        startActivity(intent)
     }
 }

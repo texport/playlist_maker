@@ -7,4 +7,6 @@
     <color name="second_background">#FFFFFFFF</color>
     <color name="main_text_color">#FF000000</color>
     <color name="icons_color">#AEAFB4</color>
+    <color name="search_background">#E6E8EB</color>"
+    <color name="edit_text_hint_color">#AEAFB4</color>
 </resources>

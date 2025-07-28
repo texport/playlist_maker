@@ -3,22 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Settings_Item_Container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:id="@+id/container_license" >
 
     <TextView
-        android:id="@+id/eula"
+        android:id="@+id/text_license"
         style="@style/Settings_Item_Text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/eula"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/icon"
+        app:layout_constraintEnd_toStartOf="@+id/icon_license"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginEnd="8dp" />
 
     <ImageView
-        android:id="@+id/icon"
+        android:id="@+id/icon_license"
         style="@style/Settings_Item_Icon"
         android:src="@drawable/ic_arrow_24"
         app:layout_constraintEnd_toEndOf="parent"
