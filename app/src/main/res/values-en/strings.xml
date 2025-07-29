@@ -5,7 +5,9 @@
     <string name="media_library">Media library</string>
     <string name="settings">Settings</string>
     <string name="theme_text">Dark theme</string>
-    <string name="share">Share Appliction</string>
+    <string name="share">Share Application</string>
     <string name="support">Support</string>
     <string name="eula">EULA</string>
+    <string name="support_email_subject">Message for developers app Playlist Maker</string>
+    <string name="email_body">Thanks developers</string>
 </resources>

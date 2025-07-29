@@ -4,4 +4,6 @@
     <color name="second_background">#1A1B22</color>
     <color name="main_text_color">#FFFFFFFF</color>
     <color name="icons_color">#FFFFFF</color>
+    <color name="search_background">#FFFFFF</color>"
+    <color name="edit_text_hint_color">#1A1B22</color>
 </resources>

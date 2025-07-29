@@ -2,10 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Settings_Item_Container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:id="@+id/container_theme" >
 
     <TextView
-        android:id="@+id/switchTitle"
+        android:id="@+id/text_switchTitle"
         style="@style/Text_YS_Regular_16"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -16,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_theme"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:checked="false"
