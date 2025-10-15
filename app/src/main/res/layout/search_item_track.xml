@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="72dp"
+    android:paddingVertical="8dp"
+    android:background="@color/second_background"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Обложка -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/ivArtwork"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Название трека -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/Search_Item_Track_Name"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@id/ivArtwork"
+        app:layout_constraintEnd_toStartOf="@id/ivChevron"
+        app:layout_constraintTop_toTopOf="@id/ivArtwork"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="6dp"/>
+
+    <!-- Автор -->
+    <TextView
+        android:id="@+id/tvAuthor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Search_Item_Artist_Name"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@id/tvTitle"
+        app:layout_constraintEnd_toStartOf="@id/ivSpace"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        android:layout_marginTop="2dp"
+        app:layout_constrainedWidth="true" />
+
+    <ImageView
+        android:id="@+id/ivSpace"
+        style="@style/Space_Icon"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_dot_13"
+        app:tint="?attr/colorControlNormal"
+        app:layout_constraintStart_toEndOf="@id/tvAuthor"
+        app:layout_constraintEnd_toStartOf="@id/tvTime"
+        app:layout_constraintTop_toTopOf="@id/tvAuthor"
+        app:layout_constraintBottom_toBottomOf="@id/tvAuthor" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/Search_Item_Artist_Name"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@id/ivSpace"
+        app:layout_constraintEnd_toStartOf="@id/ivChevron"
+        app:layout_constraintTop_toTopOf="@id/tvAuthor"
+        app:layout_constraintBottom_toBottomOf="@id/tvAuthor"/>
+
+    <!-- Шеврон -->
+    <ImageView
+        android:id="@+id/ivChevron"
+        style="@style/Settings_Item_Icon"
+        android:src="@drawable/ic_arrow_24"
+        app:tint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="19dp"
+        android:layout_marginTop="18dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

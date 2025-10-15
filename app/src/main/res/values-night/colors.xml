@@ -6,4 +6,6 @@
     <color name="icons_color">#FFFFFF</color>
     <color name="search_background">#FFFFFF</color>"
     <color name="edit_text_hint_color">#1A1B22</color>
+    <color name="search_item_artist_name_color">#FFFFFF</color>
+    <color name="search_item_track_name_color">#FFFFFF</color>
 </resources>
