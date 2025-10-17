@@ -1,22 +1,29 @@
-package com.mybrain.playlistmaker
+package com.mybrain.playlistmaker.search
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Adapter
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.mybrain.playlistmaker.R
+import com.mybrain.playlistmaker.data.MockTracks
 
 class SearchActivity : AppCompatActivity() {
     // Переменные для элементов интерфейса
     private lateinit var searchInput: EditText
     private lateinit var clearSearchButton: ImageView
-    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var toolbar: Toolbar
     private lateinit var rootLayout: View
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: SearchTrackAdapter
 
     private var currentSearchText: String = ""
 
@@ -33,6 +40,11 @@ class SearchActivity : AppCompatActivity() {
         clearSearchButton = findViewById(R.id.button_clear_search)
         toolbar = findViewById(R.id.toolbar_search)
         rootLayout = findViewById(R.id.root_layout_search)
+        recyclerView = findViewById(R.id.rvTracks)
+
+        adapter = SearchTrackAdapter(MockTracks.getTracks())
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
 
         val searchTextWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
@@ -74,7 +86,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
         inputMethodManager?.hideSoftInputFromWindow(view.windowToken, 0)
     }
 

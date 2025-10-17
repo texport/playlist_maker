@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
+import com.mybrain.playlistmaker.search.SearchActivity
 
 class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")

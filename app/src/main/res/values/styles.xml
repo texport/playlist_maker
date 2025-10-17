@@ -48,6 +48,24 @@
         <item name="android:background">@color/second_background</item>
     </style>
 
+    <style name="Search_Item_Track_Name">
+        <item name="android:textColor">@color/search_item_track_name_color</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:fontFamily">@font/ys_regular</item>
+    </style>
+
+    <style name="Search_Item_Artist_Name">
+        <item name="android:textColor">@color/search_item_artist_name_color</item>
+        <item name="android:textSize">@dimen/text_size_11</item>
+        <item name="android:fontFamily">@font/ys_regular</item>
+    </style>
+
+    <style name="Space_Icon">
+        <item name="android:layout_width">13dp</item>
+        <item name="android:layout_height">13dp</item>
+        <item name="android:tint">@color/main_text_color</item>
+    </style>
+
     <!-- YS Bold -->
     <style name="Text_YS_Bold_32">
         <item name="android:fontFamily">@font/ys_bold</item>
