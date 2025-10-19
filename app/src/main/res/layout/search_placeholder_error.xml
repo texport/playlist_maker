@@ -23,6 +23,7 @@
         android:text="@string/search_server_error_title"
         android:textAppearance="@style/Text_YS_Medium_19"
         android:textColor="@color/main_text_color"
+        android:includeFontPadding="false"
         android:textAlignment="center" />
 
     <TextView
@@ -33,15 +34,17 @@
         android:text="@string/search_server_error_subtitle"
         android:textAppearance="@style/Text_YS_Medium_19"
         android:textColor="@color/main_text_color"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        android:includeFontPadding="false" />
 
     <Button
         android:id="@+id/button_retry"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="134dp"
-        android:layout_marginEnd="135dp"
+        android:layout_height="36"
         android:layout_marginTop="24dp"
+        android:textAllCaps="false"
+        android:maxLines="1"
+        android:ellipsize="end"
         style="@style/Button_Retry_Style"
         android:text="@string/retry" />
 </LinearLayout>
