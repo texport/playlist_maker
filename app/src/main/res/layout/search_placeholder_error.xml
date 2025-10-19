@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/placeholder_error_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="32dp"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@color/second_background">
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="102dp"
+        android:src="@drawable/im_placeholder_error" />
+
+    <TextView
+        android:id="@+id/tv_error_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/search_server_error_title"
+        android:textAppearance="@style/Text_YS_Medium_19"
+        android:textColor="@color/main_text_color"
+        android:includeFontPadding="false"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/tv_error_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/search_server_error_subtitle"
+        android:textAppearance="@style/Text_YS_Medium_19"
+        android:textColor="@color/main_text_color"
+        android:textAlignment="center"
+        android:includeFontPadding="false" />
+
+    <Button
+        android:id="@+id/button_retry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:textAllCaps="false"
+        android:maxLines="1"
+        android:ellipsize="end"
+        style="@style/Button_Retry_Style"
+        android:text="@string/retry" />
+</LinearLayout>
