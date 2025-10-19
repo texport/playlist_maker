@@ -44,7 +44,10 @@
             android:paddingEnd="40dp"
             android:paddingBottom="8.5dp"
             android:textColor="@color/search_text_edit_color"
-            android:textColorHint="@color/edit_text_hint_color" />
+            android:textColorHint="@color/edit_text_hint_color"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
+            android:textCursorDrawable="@drawable/custom_cursor" />
 
         <ImageView
             android:id="@+id/button_clear_search"
@@ -60,4 +63,20 @@
     </FrameLayout>
 
     <include layout = "@layout/search_track_list" />
+
+    <include
+        android:id="@+id/include_placeholder_empty"
+        layout="@layout/search_placeholder_empty"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/include_placeholder_error"
+        layout="@layout/search_placeholder_error"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/include_placeholder_loading"
+        layout="@layout/search_placeholder_loading"
+        android:visibility="gone" />
+
 </LinearLayout>

@@ -1,8 +1,6 @@
 package com.mybrain.playlistmaker.search
 
 import android.view.LayoutInflater
-import android.view.RoundedCorner
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView

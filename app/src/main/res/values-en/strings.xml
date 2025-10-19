@@ -10,4 +10,8 @@
     <string name="eula">EULA</string>
     <string name="support_email_subject">Message for developers app Playlist Maker</string>
     <string name="email_body">Thanks developers</string>
+    <string name="search_no_results">Nothing found</string>
+    <string name="retry">Retry</string>
+    <string name="search_server_error_title">Connection problems</string>
+    <string name="search_server_error_subtitle">Download failed. Check your internet connection.</string>
 </resources>

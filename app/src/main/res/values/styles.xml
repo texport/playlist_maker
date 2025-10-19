@@ -66,6 +66,17 @@
         <item name="android:tint">@color/main_text_color</item>
     </style>
 
+    <style name="Button_Retry_Style" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="backgroundTint">@null</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="elevation">0dp</item>
+        <item name="android:background">@drawable/rounded_button_54</item>
+
+        <!-- Подключаем стиль текста -->
+        <item name="android:textAppearance">@style/Text_YS_Medium_14</item>
+        <item name="android:textColor">@color/second_background</item>
+    </style>
+
     <!-- YS Bold -->
     <style name="Text_YS_Bold_32">
         <item name="android:fontFamily">@font/ys_bold</item>
