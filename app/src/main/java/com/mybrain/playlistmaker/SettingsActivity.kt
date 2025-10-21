@@ -1,26 +1,36 @@
 package com.mybrain.playlistmaker
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceFragmentCompat
 import androidx.core.net.toUri
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity : AppCompatActivity() {
+    private lateinit var app: App
+    private lateinit var toolbar: Toolbar
+    private lateinit var shareContainer: View
+    private lateinit var supportContainer: View
+    private lateinit var licenseContainer: View
+    private lateinit var themeContainer: SwitchMaterial
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        app = application as App
         enableEdgeToEdge()
         setContentView(R.layout.settings_activity)
+
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-        val shareContainer = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.container_share)
-        val supportContainer = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.container_support)
-        val licenseContainer = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.container_license)
-        val themeContainer = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.container_theme)
+        shareContainer = findViewById(R.id.container_share)
+        supportContainer = findViewById(R.id.container_support)
+        licenseContainer = findViewById(R.id.container_license)
+        themeContainer = findViewById(R.id.switch_theme)
 
         toolbar.setNavigationOnClickListener {
             finish()
@@ -36,6 +46,11 @@ class SettingsActivity : AppCompatActivity() {
 
         licenseContainer.setOnClickListener {
             openLicenseAgreement()
+        }
+
+        themeContainer.isChecked = app.theme.isDark()
+        themeContainer.setOnCheckedChangeListener { switcher, checked ->
+            app.theme.setDark(checked)
         }
     }
 
