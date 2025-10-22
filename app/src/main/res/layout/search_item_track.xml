@@ -39,7 +39,7 @@
     <!-- Автор -->
     <TextView
         android:id="@+id/tvAuthor"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         style="@style/Search_Item_Artist_Name"
         android:maxLines="1"
@@ -47,8 +47,12 @@
         app:layout_constraintStart_toStartOf="@id/tvTitle"
         app:layout_constraintEnd_toStartOf="@id/ivSpace"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintBottom_toBottomOf="@+id/ivArtwork"
         android:layout_marginTop="2dp"
-        app:layout_constrainedWidth="true" />
+        app:layout_constrainedWidth="true"
+        app:layout_constraintWidth_default="wrap"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="0" />
 
     <ImageView
         android:id="@+id/ivSpace"
@@ -63,13 +67,13 @@
 
     <TextView
         android:id="@+id/tvTime"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Search_Item_Artist_Name"
         android:maxLines="1"
         android:ellipsize="end"
         app:layout_constraintStart_toEndOf="@id/ivSpace"
-        app:layout_constraintEnd_toStartOf="@id/ivChevron"
+        app:layout_constraintEnd_toEndOf="@id/tvTitle"
         app:layout_constraintTop_toTopOf="@id/tvAuthor"
         app:layout_constraintBottom_toBottomOf="@id/tvAuthor"/>
 
