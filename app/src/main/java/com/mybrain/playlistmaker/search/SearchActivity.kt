@@ -15,33 +15,45 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.mybrain.playlistmaker.App
 import com.mybrain.playlistmaker.R
 
-class SearchActivity : AppCompatActivity() {
+class SearchActivity() : AppCompatActivity() {
     // Переменные для элементов интерфейса
+    private lateinit var rootLayout: View
+    private lateinit var app: App
+    private lateinit var toolbar: Toolbar
+
     private lateinit var searchInput: EditText
     private lateinit var clearSearchButton: ImageView
-    private lateinit var toolbar: Toolbar
-    private lateinit var rootLayout: View
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SearchTrackAdapter
+
     private lateinit var placeholderEmpty: View
-    private lateinit var placeholderError: View
     private lateinit var placeholderLoading: View
+
+    private lateinit var placeholderError: View
     private lateinit var retryButton: Button
+
+    private lateinit var searchHistory: View
+    private lateinit var historyRV: RecyclerView
+    private lateinit var clearHistoryButton: Button
+    private lateinit var historyAdapter: SearchTrackAdapter
+
+
     private var currentSearchText: String = ""
+    private var uiState: UiState = UiState.IDLE
     private var lastQuery: String? = null
+    private var currentRequestId = 0
     private val repo by lazy { ItunesRepository() }
 
-    companion object {
-        private const val SEARCH_TEXT_KEY = "SEARCH_TEXT_KEY"
-    }
-
-    private enum class UiState { IDLE, LOADING, LIST, EMPTY, ERROR }
+    private enum class UiState { IDLE, HISTORY, LOADING, LIST, EMPTY, ERROR }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        app = application as App
         setContentView(R.layout.search_activity)
 
         // базовые компоненты
@@ -52,8 +64,11 @@ class SearchActivity : AppCompatActivity() {
 
         // список
         recyclerView = findViewById(R.id.rvTracks)
-        adapter = SearchTrackAdapter(mutableListOf())
+        adapter = SearchTrackAdapter(mutableListOf()) { track ->
+            app.searchHistoryStorageManager.add(track)
+        }
         recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
         // плейсхолдеры
@@ -62,31 +77,49 @@ class SearchActivity : AppCompatActivity() {
         placeholderLoading = findViewById(R.id.include_placeholder_loading)
         retryButton = findViewById(R.id.button_retry)
 
-        val searchTextWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {}
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                currentSearchText = s?.toString().orEmpty()
-                clearSearchButton.visibility = if (currentSearchText.isEmpty()) View.GONE else View.VISIBLE
-
-                if (currentSearchText.isEmpty()) {
-                    setUiState(UiState.IDLE)
-                    adapter.updateData(emptyList())
-                }
-            }
+        // история
+        searchHistory = findViewById(R.id.search_history)
+        historyRV = findViewById(R.id.rvHistory)
+        historyAdapter = SearchTrackAdapter(mutableListOf()) { track ->
+            app.searchHistoryStorageManager.add(track)
+            searchInput.setText(track.trackName)
+            searchInput.setSelection(searchInput.text.length)
+            doSearch(track.trackName)
         }
+        historyRV.layoutManager = LinearLayoutManager(this)
+        historyRV.adapter = historyAdapter
+        historyRV.setHasFixedSize(true)
+        clearHistoryButton = findViewById(R.id.btnClearHistory)
 
         toolbar.setNavigationOnClickListener {
             finish()
         }
 
-        searchInput.addTextChangedListener(searchTextWatcher)
+        searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                currentSearchText = s?.toString().orEmpty()
+
+                clearSearchButton.visibility = if (currentSearchText.isEmpty()) View.GONE else View.VISIBLE
+
+                updateHistoryVisibility()
+
+                if (currentSearchText.isEmpty()) {
+                    adapter.updateData(emptyList())
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
         searchInput.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
                 val q = searchInput.text.toString().trim()
-                if (q.isNotEmpty()) doSearch(q)
-                hideKeyboard(searchInput)
+                if (q.isNotEmpty()) {
+                    hideKeyboard(searchInput)
+                    doSearch(q)
+                }
                 true
             } else false
         }
@@ -94,8 +127,13 @@ class SearchActivity : AppCompatActivity() {
         clearSearchButton.setOnClickListener {
             searchInput.text.clear()
             hideKeyboard(searchInput)
-            adapter.updateData(emptyList())
-            setUiState(UiState.IDLE)
+            searchInput.requestFocus()
+            updateHistoryVisibility()
+        }
+
+        clearHistoryButton.setOnClickListener {
+            app.searchHistoryStorageManager.clear()
+            renderHistory()
         }
 
         rootLayout.setOnClickListener {
@@ -112,22 +150,64 @@ class SearchActivity : AppCompatActivity() {
         }
 
         clearSearchButton.visibility = if (searchInput.text.isNullOrEmpty()) View.GONE else View.VISIBLE
+
+        searchInput.setOnFocusChangeListener { _, hasFocus ->
+            if (uiState != UiState.LOADING) updateHistoryVisibility()
+        }
+
+        searchInput.requestFocus()
+        if (searchInput.text.isNullOrEmpty()) renderHistory()
+    }
+
+    private fun renderHistory() {
+        val items = app.searchHistoryStorageManager.get()
+
+        if (items.isEmpty()) {
+            setUiState(UiState.IDLE)
+        } else {
+            historyAdapter.updateData(items)
+            setUiState(UiState.HISTORY)
+        }
+    }
+
+    private fun updateHistoryVisibility() {
+        if (uiState == UiState.LOADING) return
+
+        val hasFocus = searchInput.hasFocus()
+        val isEmpty = searchInput.text.isNullOrEmpty()
+        val items = app.searchHistoryStorageManager.get()
+
+        if (hasFocus && isEmpty && items.isNotEmpty()) {
+            historyAdapter.updateData(items)
+            setUiState(UiState.HISTORY)
+        } else if (adapter.itemCount > 0) {
+            setUiState(UiState.LIST)
+        } else {
+            when (uiState) {
+                UiState.EMPTY -> setUiState(UiState.EMPTY)
+                UiState.ERROR -> setUiState(UiState.ERROR)
+                else          -> setUiState(UiState.IDLE)
+            }
+        }
     }
 
     private fun hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
-        inputMethodManager?.hideSoftInputFromWindow(view.windowToken, 0)
+        (getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager)
+            ?.hideSoftInputFromWindow(view.windowToken, 0)
+        view.clearFocus()
     }
 
     private fun doSearch(q: String) {
+        val requestId = ++currentRequestId
         lastQuery = q
         clearSearchButton.isEnabled = false
         setUiState(UiState.LOADING)
 
         repo.search(q) { result ->
             runOnUiThread {
-                clearSearchButton.isEnabled = true
+                if (requestId != currentRequestId) return@runOnUiThread
 
+                clearSearchButton.isEnabled = true
                 result.onSuccess { tracks ->
                     if (tracks.isEmpty()) {
                         adapter.updateData(emptyList())
@@ -136,7 +216,7 @@ class SearchActivity : AppCompatActivity() {
                         adapter.updateData(tracks)
                         setUiState(UiState.LIST)
                     }
-                }.onFailure { e ->
+                }.onFailure {
                     adapter.updateData(emptyList())
                     setUiState(UiState.ERROR)
                 }
@@ -145,8 +225,18 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setUiState(state: UiState) {
+        uiState = state
+
         when (state) {
             UiState.IDLE -> {
+                searchHistory.visibility = View.GONE
+                recyclerView.visibility = View.GONE
+                placeholderLoading.visibility = View.GONE
+                placeholderEmpty.visibility = View.GONE
+                placeholderError.visibility = View.GONE
+            }
+            UiState.HISTORY -> {
+                searchHistory.visibility = View.VISIBLE
                 recyclerView.visibility = View.GONE
                 placeholderLoading.visibility = View.GONE
                 placeholderEmpty.visibility = View.GONE
@@ -154,27 +244,31 @@ class SearchActivity : AppCompatActivity() {
             }
             UiState.LOADING -> {
                 placeholderLoading.visibility = View.VISIBLE
+                searchHistory.visibility = View.GONE
                 recyclerView.visibility = View.GONE
                 placeholderEmpty.visibility = View.GONE
                 placeholderError.visibility = View.GONE
             }
             UiState.LIST -> {
                 recyclerView.visibility = View.VISIBLE
+                searchHistory.visibility = View.GONE
                 placeholderLoading.visibility = View.GONE
                 placeholderEmpty.visibility = View.GONE
                 placeholderError.visibility = View.GONE
             }
             UiState.EMPTY -> {
+                placeholderEmpty.visibility = View.VISIBLE
+                searchHistory.visibility = View.GONE
                 recyclerView.visibility = View.GONE
                 placeholderLoading.visibility = View.GONE
-                placeholderEmpty.visibility = View.VISIBLE
                 placeholderError.visibility = View.GONE
             }
             UiState.ERROR -> {
+                placeholderError.visibility = View.VISIBLE
+                searchHistory.visibility = View.GONE
                 recyclerView.visibility = View.GONE
                 placeholderLoading.visibility = View.GONE
                 placeholderEmpty.visibility = View.GONE
-                placeholderError.visibility = View.VISIBLE
             }
         }
     }
@@ -182,14 +276,27 @@ class SearchActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(SEARCH_TEXT_KEY, currentSearchText)
+        outState.putString("LAST_QUERY_KEY", lastQuery)
+        outState.putString("UI_STATE_KEY", uiState.name)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        val restoredText = savedInstanceState.getString(SEARCH_TEXT_KEY, "")
-        if (currentSearchText != restoredText) {
-            currentSearchText = restoredText
-            searchInput.setText(currentSearchText)
+        currentSearchText = savedInstanceState.getString(SEARCH_TEXT_KEY, "")
+        searchInput.setText(currentSearchText)
+        lastQuery = savedInstanceState.getString("LAST_QUERY_KEY")
+        uiState = savedInstanceState.getString("UI_STATE_KEY")?.let { UiState.valueOf(it) } ?: UiState.IDLE
+
+        when (uiState) {
+            UiState.HISTORY -> renderHistory()
+            UiState.LIST    -> setUiState(UiState.LIST)
+            UiState.EMPTY   -> setUiState(UiState.EMPTY)
+            UiState.ERROR   -> setUiState(UiState.ERROR)
+            else            -> setUiState(UiState.IDLE)
         }
+    }
+
+    companion object {
+        private const val SEARCH_TEXT_KEY = "SEARCH_TEXT_KEY"
     }
 }

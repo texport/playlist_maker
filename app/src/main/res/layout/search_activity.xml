@@ -79,4 +79,9 @@
         layout="@layout/search_placeholder_loading"
         android:visibility="gone" />
 
+    <include
+        android:id="@+id/search_history"
+        layout="@layout/search_history"
+        android:visibility="gone" />
+
 </LinearLayout>

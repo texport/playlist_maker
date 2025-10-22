@@ -14,4 +14,13 @@ class PrefsManager(context: Context) {
     fun putBoolean(key: String, value: Boolean) {
         prefs.edit { putBoolean(key, value) }
     }
+
+    fun getString(key: String, def: String? = null): String? =
+        prefs.getString(key, def)
+
+    fun putString(key: String, value: String) =
+        prefs.edit { putString(key, value) }
+
+    fun remove(key: String) =
+        prefs.edit { remove(key) }
 }

@@ -14,4 +14,6 @@
     <string name="retry">Retry</string>
     <string name="search_server_error_title">Connection problems</string>
     <string name="search_server_error_subtitle">Download failed. Check your internet connection.</string>
+    <string name="you_searched">You Searched</string>
+    <string name="clear_history">Clear history</string>
 </resources>
