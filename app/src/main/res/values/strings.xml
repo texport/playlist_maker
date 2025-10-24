@@ -16,4 +16,6 @@
     <string name="retry">Обновить</string>
     <string name="search_server_error_title">Проблемы со связью</string>
     <string name="search_server_error_subtitle">Загрузка не удалась. Проверьте подключение к интернету</string>
+    <string name="you_searched">Вы искали</string>
+    <string name="clear_history">Очистить историю</string>
 </resources>

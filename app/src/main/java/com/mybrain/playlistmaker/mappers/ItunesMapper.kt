@@ -10,6 +10,7 @@ fun ItunesTrackDto.toDomain(): Track {
     val s = totalSec % 60
 
     return Track(
+        trackId ?: 0L,
         trackName = trackName.orEmpty(),
         artistName = artistName.orEmpty(),
         trackTime = String.format(Locale.getDefault(), "%02d:%02d", m, s),

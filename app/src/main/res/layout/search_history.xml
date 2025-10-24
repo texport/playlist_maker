@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/search_history"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@color/second_background">
+
+    <TextView
+        android:id="@+id/tv_history_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="42dp"
+        android:text="@string/you_searched"
+        android:textAppearance="@style/Text_YS_Medium_19"
+        android:textColor="@color/main_text_color" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
+        android:layout_marginTop="20dp"
+        tools:listitem="@layout/search_item_track" />
+
+    <Button
+        android:id="@+id/btnClearHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:textAllCaps="false"
+        android:maxLines="1"
+        android:ellipsize="end"
+        style="@style/Button_Retry_Style"
+        android:text="@string/clear_history" />
+</LinearLayout>
