@@ -27,7 +27,6 @@ class SearchTrackVH(
             .transform(CenterCrop(), RoundedCorners(radius))
             .placeholder(R.drawable.placeholder_track)
             .error(R.drawable.placeholder_track)
-            .skipMemoryCache(true)
             .fallback(R.drawable.placeholder_track)
             .into(image)
         name.text = track.trackName

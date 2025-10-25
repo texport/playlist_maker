@@ -11,7 +11,6 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
 import com.mybrain.playlistmaker.R
-import com.mybrain.playlistmaker.data.MockTracks
 import com.mybrain.playlistmaker.models.Track
 
 class PlayerActivity : AppCompatActivity() {
@@ -40,6 +39,7 @@ class PlayerActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = ""
 
         toolbar.setNavigationOnClickListener { finish() }
 
@@ -47,14 +47,6 @@ class PlayerActivity : AppCompatActivity() {
 
         //val track = findTrack(trackIdFromIntent)
         bindTrack(trackFromIntent)
-    }
-
-    private fun findTrack(trackId: Long): Track {
-        val found = MockTracks
-            .getTracks()
-            .firstOrNull { it.trackId == trackId }
-
-        return found ?: MockTracks.getTracks().first()
     }
 
     private fun renderTrackInfoBlock() {
@@ -86,7 +78,6 @@ class PlayerActivity : AppCompatActivity() {
             .transform(CenterCrop(), RoundedCorners(radius))
             .placeholder(R.drawable.placeholder_track)
             .error(R.drawable.placeholder_track)
-            .skipMemoryCache(true)
             .fallback(R.drawable.placeholder_track)
             .into(ivArtwork)
 

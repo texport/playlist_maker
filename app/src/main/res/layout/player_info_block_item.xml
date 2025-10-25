@@ -29,7 +29,6 @@
         android:layout_height="wrap_content"
 
         style="@style/Player_Info_Label"
-        android:text=""
         android:maxLines="1"
         android:ellipsize="end"
 

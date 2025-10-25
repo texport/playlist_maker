@@ -18,7 +18,6 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="@drawable/ripple_circle"
-        android:src="@drawable/ic_add_track_51"
         android:background="@drawable/ic_add_track_51"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
