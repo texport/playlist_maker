@@ -1,5 +1,6 @@
 package com.mybrain.playlistmaker.search
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -17,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mybrain.playlistmaker.App
 import com.mybrain.playlistmaker.R
+import com.mybrain.playlistmaker.models.Track
+import com.mybrain.playlistmaker.player.PlayerActivity
 
 class SearchActivity() : AppCompatActivity() {
     // Переменные для элементов интерфейса
@@ -66,6 +69,7 @@ class SearchActivity() : AppCompatActivity() {
         recyclerView = findViewById(R.id.rvTracks)
         adapter = SearchTrackAdapter(mutableListOf()) { track ->
             app.searchHistoryStorageManager.add(track)
+            openPlayer(track)
         }
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
@@ -82,9 +86,7 @@ class SearchActivity() : AppCompatActivity() {
         historyRV = findViewById(R.id.rvHistory)
         historyAdapter = SearchTrackAdapter(mutableListOf()) { track ->
             app.searchHistoryStorageManager.add(track)
-            searchInput.setText(track.trackName)
-            searchInput.setSelection(searchInput.text.length)
-            doSearch(track.trackName)
+            openPlayer(track)
         }
         historyRV.layoutManager = LinearLayoutManager(this)
         historyRV.adapter = historyAdapter
@@ -271,6 +273,12 @@ class SearchActivity() : AppCompatActivity() {
                 placeholderEmpty.visibility = View.GONE
             }
         }
+    }
+
+    private fun openPlayer(track: Track) {
+        val intent = Intent(this, PlayerActivity::class.java)
+        intent.putExtra(PlayerActivity.EXTRA_TRACK_ID, track)
+        startActivity(intent)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

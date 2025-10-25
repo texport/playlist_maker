@@ -48,6 +48,32 @@
         <item name="android:background">@color/second_background</item>
     </style>
 
+    <!-- Player -->
+    <style name="Player_Track_Name">
+        <item name="android:textColor">@color/main_text_color</item>
+        <item name="android:textSize">@dimen/text_size_22</item>
+        <item name="android:fontFamily">@font/ys_medium</item>
+    </style>
+
+    <style name="Player_Artist_Name">
+        <item name="android:textColor">@color/main_text_color</item>
+        <item name="android:textSize">@dimen/text_size_14</item>
+        <item name="android:fontFamily">@font/ys_medium</item>
+    </style>
+
+    <style name="Player_Info_Label">
+        <item name="android:textColor">@color/gray</item>
+        <item name="android:textSize">@dimen/text_size_13</item>
+        <item name="android:fontFamily">@font/ys_regular</item>
+    </style>
+
+    <style name="Player_Info_Value">
+        <item name="android:textColor">@color/main_text_color</item>
+        <item name="android:textSize">@dimen/text_size_13</item>
+        <item name="android:fontFamily">@font/ys_regular</item>
+    </style>
+
+    <!-- Search -->
     <style name="Search_Item_Track_Name">
         <item name="android:textColor">@color/search_item_track_name_color</item>
         <item name="android:textSize">@dimen/text_size_16</item>

@@ -9,4 +9,5 @@
     <color name="search_item_artist_name_color">#FFFFFF</color>
     <color name="search_item_track_name_color">#FFFFFF</color>
     <color name="placeholder_note_color">#FFFFFF</color>
+    <color name="add_track_like_color">#FFFFFF</color>
 </resources>

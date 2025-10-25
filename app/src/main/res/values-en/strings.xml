@@ -16,4 +16,9 @@
     <string name="search_server_error_subtitle">Download failed. Check your internet connection.</string>
     <string name="you_searched">You Searched</string>
     <string name="clear_history">Clear history</string>
+    <string name="label_duration">Duration</string>
+    <string name="label_album">Album</string>
+    <string name="label_year">Year</string>
+    <string name="label_genre">Genre</string>
+    <string name="label_country">Country</string>
 </resources>
