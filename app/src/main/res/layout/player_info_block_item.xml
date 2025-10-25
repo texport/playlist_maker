@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/player_info_block_item"
+    android:layout_width="match_parent"
+    android:layout_height="32dp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/leftBorderDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="16dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rightBorderDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="16dp" />
+
+    <!-- Лейбл -->
+    <TextView
+        android:id="@+id/tvLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        style="@style/Player_Info_Label"
+        android:text=""
+        android:maxLines="1"
+        android:ellipsize="end"
+
+        android:layout_marginTop="9dp"
+        android:layout_marginBottom="8dp"
+
+        app:layout_constraintStart_toStartOf="@+id/leftBorderDescription"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Значение -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:id="@+id/tvValue"
+        style="@style/Player_Info_Value"
+        android:text=""
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textAlignment="viewEnd"
+        android:gravity="end"
+
+        android:layout_marginTop="9dp"
+        android:layout_marginBottom="8dp"
+
+        app:layout_constraintBaseline_toBaselineOf="@+id/tvLabel"
+        app:layout_constraintEnd_toEndOf="@+id/rightBorderDescription"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

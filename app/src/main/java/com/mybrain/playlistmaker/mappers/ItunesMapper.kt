@@ -3,6 +3,7 @@ package com.mybrain.playlistmaker.mappers
 import com.mybrain.playlistmaker.dto.ItunesTrackDto
 import com.mybrain.playlistmaker.models.Track
 import java.util.Locale
+import kotlin.String
 
 fun ItunesTrackDto.toDomain(): Track {
     val totalSec = (trackTimeMillis ?: 0L) / 1000
@@ -14,6 +15,10 @@ fun ItunesTrackDto.toDomain(): Track {
         trackName = trackName.orEmpty(),
         artistName = artistName.orEmpty(),
         trackTime = String.format(Locale.getDefault(), "%02d:%02d", m, s),
-        artworkUrl100 = artworkUrl100.orEmpty()
+        artworkUrl100 = artworkUrl100.orEmpty(),
+        collectionName = collectionName.orEmpty(),
+        releaseDate = releaseDate.orEmpty(),
+        primaryGenreName = primaryGenreName.orEmpty(),
+        country = country.orEmpty()
     )
 }

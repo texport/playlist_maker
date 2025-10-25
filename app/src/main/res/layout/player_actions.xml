@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/player_actions"
+    android:layout_width="match_parent"
+    android:background="@color/second_background"
+    android:layout_height="wrap_content">
+
+    <!-- Левая круглая кнопка: добавить в плейлист -->
+    <ImageButton
+        android:id="@+id/btnAddToPlaylist"
+        android:layout_width="51dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="55dp"
+        android:scaleType="centerInside"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/ripple_circle"
+        android:src="@drawable/ic_add_track_51"
+        android:background="@drawable/ic_add_track_51"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnPlay" />
+
+    <!-- Центральная play-кнопка -->
+    <ImageButton
+        android:id="@+id/btnPlay"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerInside"
+        android:background="@drawable/ic_play_button_100"
+        app:layout_constraintTop_toTopOf="parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/ripple_circle"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintWidth_max="400dp"
+        app:layout_constraintStart_toEndOf="@id/btnAddToPlaylist"
+        app:layout_constraintEnd_toStartOf="@id/btnFavorite" />
+
+    <!-- Избранное -->
+    <ImageButton
+        android:id="@+id/btnFavorite"
+        android:layout_width="51dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="55dp"
+        android:layout_marginEnd="24dp"
+        android:scaleType="centerInside"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/ripple_circle"
+        android:background="@drawable/ic_like_button_51"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnPlay"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Таймер -->
+    <TextView
+        android:id="@+id/tvPreviewTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0:30"
+        android:textColor="@color/main_text_color"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        app:layout_constraintTop_toBottomOf="@id/btnPlay"
+        app:layout_constraintStart_toStartOf="@id/btnPlay"
+        app:layout_constraintEnd_toEndOf="@id/btnPlay"
+        android:layout_marginTop="4dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
