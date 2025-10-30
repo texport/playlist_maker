@@ -2,6 +2,8 @@ package com.mybrain.playlistmaker.search
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
+import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -44,8 +46,18 @@ class SearchActivity() : AppCompatActivity() {
     private lateinit var clearHistoryButton: Button
     private lateinit var historyAdapter: SearchTrackAdapter
 
-
     private var currentSearchText: String = ""
+    private val openPlayerDebounceHandler = Handler(Looper.getMainLooper())
+    private var canOpenPlayer = true
+    private val debounceDelayMs = 2000L
+    private val handler = Handler(Looper.getMainLooper())
+    private val searchRunnable = Runnable {
+        val q = currentSearchText.trim()
+        if (q.isNotEmpty()) {
+            hideKeyboard(searchInput)
+            doSearch(q)
+        }
+    }
     private var uiState: UiState = UiState.IDLE
     private var lastQuery: String? = null
     private var currentRequestId = 0
@@ -102,14 +114,20 @@ class SearchActivity() : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 currentSearchText = s?.toString().orEmpty()
+                val textNow = currentSearchText.trim()
 
-                clearSearchButton.visibility = if (currentSearchText.isEmpty()) View.GONE else View.VISIBLE
+                clearSearchButton.visibility = if (textNow.isEmpty()) View.GONE else View.VISIBLE
 
                 updateHistoryVisibility()
 
-                if (currentSearchText.isEmpty()) {
+                if (textNow.isEmpty()) {
+                    handler.removeCallbacks(searchRunnable)
                     adapter.updateData(emptyList())
+                    return
                 }
+
+                handler.removeCallbacks(searchRunnable)
+                handler.postDelayed(searchRunnable, debounceDelayMs)
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -119,6 +137,7 @@ class SearchActivity() : AppCompatActivity() {
             if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
                 val q = searchInput.text.toString().trim()
                 if (q.isNotEmpty()) {
+                    handler.removeCallbacks(searchRunnable)
                     hideKeyboard(searchInput)
                     doSearch(q)
                 }
@@ -128,7 +147,6 @@ class SearchActivity() : AppCompatActivity() {
 
         clearSearchButton.setOnClickListener {
             searchInput.text.clear()
-            hideKeyboard(searchInput)
             searchInput.requestFocus()
             updateHistoryVisibility()
         }
@@ -159,6 +177,12 @@ class SearchActivity() : AppCompatActivity() {
 
         searchInput.requestFocus()
         if (searchInput.text.isNullOrEmpty()) renderHistory()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(searchRunnable)
+        openPlayerDebounceHandler.removeCallbacksAndMessages(null)
     }
 
     private fun renderHistory() {
@@ -276,9 +300,16 @@ class SearchActivity() : AppCompatActivity() {
     }
 
     private fun openPlayer(track: Track) {
+        if (!canOpenPlayer) return
+        canOpenPlayer = false
         val intent = Intent(this, PlayerActivity::class.java)
         intent.putExtra(PlayerActivity.EXTRA_TRACK_ID, track)
         startActivity(intent)
+
+        openPlayerDebounceHandler.postDelayed(
+            { canOpenPlayer = true },
+            500L
+        )
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
