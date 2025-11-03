@@ -40,11 +40,12 @@ android {
 }
 
 dependencies {
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation ("com.google.android.material:material:1.6.1")
-    implementation ("com.github.bumptech.glide:glide:4.14.2")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.14.2")
+    implementation(libs.retrofit)
+    implementation(libs.retrofit2.converter.gson)
+    implementation (libs.material.v161)
+    implementation (libs.glide)
+    implementation(libs.logging.interceptor)
+    annotationProcessor (libs.glide.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

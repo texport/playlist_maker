@@ -8,7 +8,7 @@
     android:background="@color/second_background"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context=".search.SearchActivity">
+    tools:context=".presentation.search.SearchActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar_search"

@@ -89,7 +89,7 @@
     <style name="Space_Icon">
         <item name="android:layout_width">13dp</item>
         <item name="android:layout_height">13dp</item>
-        <item name="android:tint">@color/main_text_color</item>
+        <item name="android:tint">@color/search_item_spacer_color</item>
     </style>
 
     <style name="Button_Retry_Style" parent="Widget.MaterialComponents.Button.UnelevatedButton">

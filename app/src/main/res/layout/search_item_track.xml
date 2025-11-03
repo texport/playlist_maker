@@ -59,7 +59,6 @@
         style="@style/Space_Icon"
         android:contentDescription="@null"
         android:src="@drawable/ic_dot_13"
-        app:tint="?attr/colorControlNormal"
         app:layout_constraintStart_toEndOf="@id/tvAuthor"
         app:layout_constraintEnd_toStartOf="@id/tvTime"
         app:layout_constraintTop_toTopOf="@id/tvAuthor"
