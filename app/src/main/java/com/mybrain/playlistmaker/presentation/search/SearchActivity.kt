@@ -231,7 +231,7 @@ class SearchActivity() : AppCompatActivity() {
         clearSearchButton.isEnabled = false
         setUiState(UiState.LOADING)
 
-        searchInteractor.search(q) { result ->
+        searchInteractor.search(q.toTrackSearchParams()) { result ->
             runOnUiThread {
                 if (requestId != currentRequestId) return@runOnUiThread
 

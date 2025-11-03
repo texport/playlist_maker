@@ -1,6 +1,7 @@
 package com.mybrain.playlistmaker
 
 import android.content.Context
+import com.google.gson.Gson
 import com.mybrain.playlistmaker.data.datasource.local.PrefsLocalDataSource
 import com.mybrain.playlistmaker.data.datasource.local.SearchHistoryLocalDataSource
 import com.mybrain.playlistmaker.data.datasource.local.ThemePreferencesLocalDataSource
@@ -23,6 +24,7 @@ import com.mybrain.playlistmaker.domain.repository.TrackRepository
 object Creator {
     // Data Sources
     private const val ITUNES_BASE_URL = "https://itunes.apple.com/"
+    private val gson: Gson by lazy { Gson() }
 
     private fun prefs(ctx: Context) =
         PrefsLocalDataSource(ctx.applicationContext)
@@ -31,7 +33,7 @@ object Creator {
         ThemePreferencesLocalDataSource(prefs(ctx))
 
     private fun searchHistoryLocal(ctx: Context) =
-        SearchHistoryLocalDataSource(prefs(ctx))
+        SearchHistoryLocalDataSource(prefs(ctx), gson)
 
     private val itunesApi: ItunesApi by lazy {
         RetrofitServiceFactory.createApi<ItunesApi>(ITUNES_BASE_URL)

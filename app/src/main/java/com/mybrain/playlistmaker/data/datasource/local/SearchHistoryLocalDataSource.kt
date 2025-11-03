@@ -6,7 +6,7 @@ import com.mybrain.playlistmaker.data.dto.TrackLocalDto
 
 class SearchHistoryLocalDataSource(
     private val prefs: PrefsLocalDataSource,
-    private val gson: Gson = Gson()
+    private val gson: Gson
 ) {
     private val type = object : TypeToken<ArrayList<TrackLocalDto>>() {}.type
 

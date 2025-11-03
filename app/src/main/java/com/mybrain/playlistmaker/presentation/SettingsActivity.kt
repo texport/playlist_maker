@@ -75,7 +75,7 @@ class SettingsActivity : AppCompatActivity() {
         val emailBody = getString(R.string.email_body)
 
         emailIntent.data = "mailto:".toUri()
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, email)
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
         emailIntent.putExtra(Intent.EXTRA_TEXT, emailBody)
 
