@@ -1,15 +1,13 @@
 package com.mybrain.playlistmaker.presentation.player
 
-import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -30,110 +28,79 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var itemYear: View
     private lateinit var itemGenre: View
     private lateinit var itemCountry: View
-    private var mediaPlayer = MediaPlayer()
-    private val handler by lazy { Handler(Looper.getMainLooper()) }
-    private enum class PlayerState { STATE_DEFAULT, STATE_PLAYING, STATE_PAUSED, STATE_PREPARED }
-    private var playerState = PlayerState.STATE_DEFAULT
-    private var shouldPlayWhenPrepared = false
-    private var isReleased = false
 
-    private val progressRunnable = object : Runnable {
-        override fun run() {
-            if (playerState == PlayerState.STATE_PLAYING) {
-                val positionMs = mediaPlayer.currentPosition
-                tvProgress.text = Utils.formatTime(positionMs)
-                handler.postDelayed(this, 500L)
-            }
-        }
-    }
-    private lateinit var track: TrackUI
+    private lateinit var viewModel: PlayerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_player)
 
-        toolbar = findViewById(R.id.toolbar)
-        ivArtwork = findViewById(R.id.ivArtwork)
-        tvTitle = findViewById(R.id.tvTitle)
-        tvAuthor = findViewById(R.id.tvAuthor)
+        val track: TrackUI = intent.getParcelableExtra(EXTRA_TRACK_ID)
+            ?: error("Track not found")
 
-        tvProgress = findViewById(R.id.tvPreviewTime)
-        btnPlayPause = findViewById(R.id.btnPlay)
+        initViews()
+        initToolbar()
+        bindStaticTrackInfo(track)
 
-        renderTrackInfoBlock()
+        val factory = PlayerViewModelFactory(track)
+        viewModel = ViewModelProvider(this, factory)[PlayerViewModel::class.java]
 
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = ""
-
-        toolbar.setNavigationOnClickListener {
-            stopAndRelease()
-            finish()
-        }
-
-        track = intent.getParcelableExtra(EXTRA_TRACK_ID) ?: error("Track not found")
-
-        bindTrack(track)
-        preparePlayer(track.previewUrl)
-
-        tvProgress.text = "00:00"
-        showPlayButton()
+        observeViewModel()
 
         btnPlayPause.setOnClickListener {
-            when (playerState) {
-                PlayerState.STATE_DEFAULT -> {
-                    shouldPlayWhenPrepared = true
-                    showPauseButton()
-                }
-                PlayerState.STATE_PREPARED -> {
-                    startPlayback()
-                }
-                PlayerState.STATE_PLAYING -> {
-                    pausePlayback()
-                }
-                PlayerState.STATE_PAUSED -> {
-                    resumePlayback()
-                }
-            }
+            viewModel.onPlayPauseClicked()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (playerState == PlayerState.STATE_PLAYING) {
-            pausePlayback()
+        viewModel.onScreenPaused()
+    }
+
+    private fun initViews() {
+        toolbar = findViewById(R.id.toolbar)
+        ivArtwork = findViewById(R.id.ivArtwork)
+        tvTitle = findViewById(R.id.tvTitle)
+        tvAuthor = findViewById(R.id.tvAuthor)
+        tvProgress = findViewById(R.id.tvPreviewTime)
+        btnPlayPause = findViewById(R.id.btnPlay)
+
+        itemDuration = findViewById(R.id.itemDuration)
+        itemAlbum = findViewById(R.id.itemAlbum)
+        itemYear = findViewById(R.id.itemYear)
+        itemGenre = findViewById(R.id.itemGenre)
+        itemCountry = findViewById(R.id.itemCountry)
+    }
+
+    private fun initToolbar() {
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = ""
+
+        toolbar.setNavigationOnClickListener {
+            finish()
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        stopAndRelease()
+    private fun observeViewModel() {
+        viewModel.uiState.observe(this) { state ->
+            tvProgress.text = state.progress
+
+            btnPlayPause.isEnabled = state.isPlayButtonEnabled
+            btnPlayPause.setBackgroundResource(
+                if (state.isPlaying) R.drawable.ic_pause_button_100
+                else R.drawable.ic_play_button_100
+            )
+        }
     }
 
-    private fun renderTrackInfoBlock() {
-        itemDuration = findViewById(R.id.itemDuration)
-        itemDuration.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_duration)
-
-        itemAlbum = findViewById(R.id.itemAlbum)
-        itemAlbum.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_album)
-
-        itemYear = findViewById(R.id.itemYear)
-        itemYear.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_year)
-
-        itemGenre = findViewById(R.id.itemGenre)
-        itemGenre.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_genre)
-
-        itemCountry = findViewById(R.id.itemCountry)
-        itemCountry.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_country)
-    }
-
-    private fun bindTrack(track: TrackUI) {
+    private fun bindStaticTrackInfo(track: TrackUI) {
         tvTitle.text = track.trackName
         tvAuthor.text = track.artistName
-        val bigArtworkUrl = track.artworkUrl100.replace("100x100bb", "512x512bb")
 
-        val radius = this.resources.getDimensionPixelSize(R.dimen.corner_8)
+        val bigArtworkUrl = track.artworkUrl100.replace("100x100bb", "512x512bb")
+        val radius = resources.getDimensionPixelSize(R.dimen.corner_8)
 
         Glide.with(this)
             .load(bigArtworkUrl)
@@ -143,120 +110,30 @@ class PlayerActivity : AppCompatActivity() {
             .fallback(R.drawable.placeholder_track)
             .into(ivArtwork)
 
+        itemDuration.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_duration)
+        itemAlbum.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_album)
+        itemYear.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_year)
+        itemGenre.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_genre)
+        itemCountry.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_country)
+
         bindInfoRow(
             rowView = itemDuration,
-            value = Utils.formatTime((track.trackTime.toInt()))
+            value = Utils.formatTime(track.trackTime.toInt())
         )
-
-        bindInfoRow(
-            rowView = itemAlbum,
-            value = track.collectionName
-        )
-
-        bindInfoRow(
-            rowView = itemYear,
-            value = extractYear(track.releaseDate)
-        )
-
-        bindInfoRow(
-            rowView = itemGenre,
-            value = track.primaryGenreName
-        )
-
-        bindInfoRow(
-            rowView = itemCountry,
-            value = track.country
-        )
+        bindInfoRow(itemAlbum, track.collectionName)
+        bindInfoRow(itemYear, extractYear(track.releaseDate))
+        bindInfoRow(itemGenre, track.primaryGenreName)
+        bindInfoRow(itemCountry, track.country)
     }
 
     private fun bindInfoRow(rowView: View, value: String?) {
         val tvValue = rowView.findViewById<TextView>(R.id.tvValue)
-
         if (value.isNullOrBlank()) {
             rowView.visibility = View.GONE
         } else {
             rowView.visibility = View.VISIBLE
             tvValue.text = value
         }
-    }
-
-    private fun preparePlayer(previewUrl: String?) {
-        if (previewUrl.isNullOrBlank()) {
-            btnPlayPause.isEnabled = false
-            return
-        }
-
-        mediaPlayer.setDataSource(previewUrl)
-
-        mediaPlayer.setOnPreparedListener {
-            playerState = PlayerState.STATE_PREPARED
-
-            if (shouldPlayWhenPrepared) {
-                shouldPlayWhenPrepared = false
-                startPlayback()
-            } else {
-                showPlayButton()
-            }
-        }
-
-        mediaPlayer.setOnCompletionListener {
-            playerState = PlayerState.STATE_PREPARED
-            stopProgressUpdates()
-            tvProgress.text = "00:00"
-            showPlayButton()
-        }
-
-        mediaPlayer.prepareAsync()
-    }
-
-    private fun startPlayback() {
-        mediaPlayer.start()
-        playerState = PlayerState.STATE_PLAYING
-        showPauseButton()
-        startProgressUpdates()
-    }
-
-    private fun resumePlayback() {
-        mediaPlayer.start()
-        playerState = PlayerState.STATE_PLAYING
-        showPauseButton()
-        startProgressUpdates()
-    }
-
-    private fun pausePlayback() {
-        mediaPlayer.pause()
-        playerState = PlayerState.STATE_PAUSED
-        showPlayButton()
-        stopProgressUpdates()
-    }
-
-    private fun stopAndRelease() {
-        if (isReleased) return
-
-        isReleased = true
-        stopProgressUpdates()
-
-        runCatching { mediaPlayer.stop() }
-        runCatching { mediaPlayer.reset() }
-        runCatching { mediaPlayer.release() }
-
-        playerState = PlayerState.STATE_DEFAULT
-    }
-
-    private fun showPlayButton() {
-        btnPlayPause.setBackgroundResource(R.drawable.ic_play_button_100)
-    }
-
-    private fun showPauseButton() {
-        btnPlayPause.setBackgroundResource(R.drawable.ic_pause_button_100)
-    }
-
-    private fun startProgressUpdates() {
-        handler.post(progressRunnable)
-    }
-
-    private fun stopProgressUpdates() {
-        handler.removeCallbacks(progressRunnable)
     }
 
     private fun extractYear(releaseDate: String?): String? {
