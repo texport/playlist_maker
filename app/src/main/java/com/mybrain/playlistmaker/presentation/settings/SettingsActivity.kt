@@ -1,4 +1,4 @@
-package com.mybrain.playlistmaker.presentation
+package com.mybrain.playlistmaker.presentation.settings
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,10 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.mybrain.playlistmaker.R
-import com.mybrain.playlistmaker.Creator
-import com.mybrain.playlistmaker.presentation.utils.ThemeManagerUI
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
@@ -18,46 +17,79 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var supportContainer: View
     private lateinit var licenseContainer: View
     private lateinit var themeContainer: SwitchMaterial
-
-    private val settings by lazy { Creator.settingsInteractor(this) }
+    private lateinit var viewModel: SettingsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.settings_activity)
 
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // init views
+        initViews()
+        // init toolbar
+        initToolbar()
+        // init viewModel
+        initViewModel()
+        // init state
+        observeState()
+        // init events
+        observeEvents()
+        // setup listeners
+        setupListeners()
+    }
 
+    private fun initViews() {
+        toolbar = findViewById(R.id.toolbar)
         shareContainer = findViewById(R.id.container_share)
         supportContainer = findViewById(R.id.container_support)
         licenseContainer = findViewById(R.id.container_license)
         themeContainer = findViewById(R.id.switch_theme)
+    }
 
-        toolbar.setNavigationOnClickListener {
-            finish()
+    private fun initToolbar() {
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener { finish() }
+    }
+
+    private fun initViewModel() {
+        val factory = SettingsViewModelFactory(applicationContext)
+        viewModel = ViewModelProvider(this, factory)[SettingsViewModel::class.java]
+    }
+
+    private fun observeState() {
+        viewModel.state.observe(this) { state ->
+            if (themeContainer.isChecked != state.isDarkTheme) {
+                themeContainer.isChecked = state.isDarkTheme
+            }
+        }
+    }
+
+    private fun observeEvents() {
+        viewModel.events.observe(this) { event ->
+            when (event) {
+                SettingsEvent.Share -> shareApp()
+                SettingsEvent.Support -> writeToSupport()
+                SettingsEvent.License -> openLicenseAgreement()
+            }
+        }
+    }
+
+    private fun setupListeners() {
+        themeContainer.setOnCheckedChangeListener { _, checked ->
+            viewModel.onThemeSwitched(checked)
         }
 
         shareContainer.setOnClickListener {
-            shareApp()
+            viewModel.onShareClicked()
         }
 
         supportContainer.setOnClickListener {
-            writeToSupport()
+            viewModel.onSupportClicked()
         }
 
         licenseContainer.setOnClickListener {
-            openLicenseAgreement()
-        }
-
-        val isDark = settings.isDarkTheme()
-        themeContainer.isChecked = isDark
-        ThemeManagerUI.apply(isDark)
-
-        themeContainer.setOnCheckedChangeListener { switcher, checked ->
-            settings.setDarkTheme(checked)
-            ThemeManagerUI.apply(checked)
+            viewModel.onLicenseClicked()
         }
     }
 
