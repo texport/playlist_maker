@@ -10,10 +10,9 @@ import com.mybrain.playlistmaker.Utils
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
 
 class PlayerViewModel(
-    private val track: TrackUI
+    private val track: TrackUI,
+    private val mediaPlayer: MediaPlayer
 ) : ViewModel() {
-
-    private val mediaPlayer = MediaPlayer()
     private val handler = Handler(Looper.getMainLooper())
     private var shouldPlayWhenPrepared = false
 

@@ -4,6 +4,7 @@ import android.app.Application
 import com.mybrain.playlistmaker.di.dataSourceModule
 import com.mybrain.playlistmaker.di.interactorModule
 import com.mybrain.playlistmaker.di.networkModule
+import com.mybrain.playlistmaker.di.playerModule
 import com.mybrain.playlistmaker.di.repositoryModule
 import com.mybrain.playlistmaker.di.viewModelModule
 import com.mybrain.playlistmaker.domain.interactors.SettingsInteractor
@@ -25,6 +26,7 @@ class App : Application() {
                 dataSourceModule,
                 repositoryModule,
                 interactorModule,
+                playerModule,
                 viewModelModule
             )
         }
