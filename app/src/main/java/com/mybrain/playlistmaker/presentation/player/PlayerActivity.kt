@@ -7,7 +7,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -15,6 +14,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.mybrain.playlistmaker.R
 import com.mybrain.playlistmaker.Utils
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var toolbar: MaterialToolbar
@@ -29,22 +30,22 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var itemGenre: View
     private lateinit var itemCountry: View
 
-    private lateinit var viewModel: PlayerViewModel
+    private val track: TrackUI by lazy {
+        intent.getParcelableExtra(EXTRA_TRACK_ID) ?: error("Track not found")
+    }
+
+    private val viewModel: PlayerViewModel by viewModel {
+        parametersOf(track)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_player)
 
-        val track: TrackUI = intent.getParcelableExtra(EXTRA_TRACK_ID)
-            ?: error("Track not found")
-
         initViews()
         initToolbar()
         bindStaticTrackInfo(track)
-
-        val factory = PlayerViewModelFactory(track)
-        viewModel = ViewModelProvider(this, factory)[PlayerViewModel::class.java]
 
         observeViewModel()
 
