@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.mybrain.playlistmaker.R
 import com.mybrain.playlistmaker.presentation.search.SearchActivity
+import com.mybrain.playlistmaker.presentation.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")

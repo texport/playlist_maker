@@ -34,7 +34,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".presentation.SettingsActivity"
+            android:name=".presentation.settings.SettingsActivity"
             android:exported="false"
             android:label="@string/settings" />
 
