@@ -17,11 +17,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.lifecycle.ViewModelProvider
-import com.mybrain.playlistmaker.Creator
 import com.mybrain.playlistmaker.R
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
 import com.mybrain.playlistmaker.presentation.player.PlayerActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : AppCompatActivity() {
 
@@ -46,8 +45,7 @@ class SearchActivity : AppCompatActivity() {
 
     private val openPlayerDebounceHandler = Handler(Looper.getMainLooper())
     private var canOpenPlayer = true
-
-    private lateinit var viewModel: SearchViewModel
+    private val viewModel: SearchViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +55,6 @@ class SearchActivity : AppCompatActivity() {
         initViews()
         initToolbar()
         initRecyclerViews()
-        initViewModel()
         initListeners()
         observeViewModel()
     }
@@ -104,14 +101,6 @@ class SearchActivity : AppCompatActivity() {
         historyRV.layoutManager = LinearLayoutManager(this)
         historyRV.setHasFixedSize(true)
         historyRV.adapter = historyAdapter
-    }
-
-    private fun initViewModel() {
-        val searchInteractor = Creator.searchInteractor()
-        val historyInteractor = Creator.searchHistoryInteractor(this)
-
-        val factory = SearchViewModelFactory(searchInteractor, historyInteractor)
-        viewModel = ViewModelProvider(this, factory)[SearchViewModel::class.java]
     }
 
     private fun initListeners() {

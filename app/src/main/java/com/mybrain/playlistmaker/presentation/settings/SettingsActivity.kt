@@ -7,9 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.mybrain.playlistmaker.R
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
@@ -17,24 +17,17 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var supportContainer: View
     private lateinit var licenseContainer: View
     private lateinit var themeContainer: SwitchMaterial
-    private lateinit var viewModel: SettingsViewModel
+    private val viewModel: SettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.settings_activity)
 
-        // init views
         initViews()
-        // init toolbar
         initToolbar()
-        // init viewModel
-        initViewModel()
-        // init state
         observeState()
-        // init events
         observeEvents()
-        // setup listeners
         setupListeners()
     }
 
@@ -50,11 +43,6 @@ class SettingsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { finish() }
-    }
-
-    private fun initViewModel() {
-        val factory = SettingsViewModelFactory(applicationContext)
-        viewModel = ViewModelProvider(this, factory)[SettingsViewModel::class.java]
     }
 
     private fun observeState() {
