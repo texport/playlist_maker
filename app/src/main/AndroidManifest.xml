@@ -30,7 +30,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".presentation.MediaActivity"
+            android:name=".presentation.media.MediaActivity"
             android:exported="false" />
 
         <activity
