@@ -1,10 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/media_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.MediaActivity">
+    android:orientation="vertical"
+    android:background="@color/second_background"
+    tools:context=".presentation.media.MediaActivity"
+    android:fitsSystemWindows="true">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/second_background"
+        app:navigationIcon="@drawable/ic_arrow_back_24"
+        app:navigationIconTint="@color/main_text_color"
+        app:title="@string/media_library"
+        app:titleTextAppearance="@style/Text_YS_Bold_24"
+        app:titleTextColor="@color/main_text_color" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/second_background"
+        app:tabIndicatorColor="@color/main_text_color"
+        app:tabIndicator="@drawable/tab_indicator_with_inset"
+        app:tabIndicatorGravity="stretch"
+        app:tabMode="fixed"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabTextAppearance="@style/Text_YS_Medium_16"
+        app:tabTextColor="@color/main_text_color" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>

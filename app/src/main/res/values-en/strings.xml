@@ -21,4 +21,9 @@
     <string name="label_year">Year</string>
     <string name="label_genre">Genre</string>
     <string name="label_country">Country</string>
+    <string name="no_playlists">You haven\'t created \nany playlists yet</string>
+    <string name="new_playlist">New playlist</string>
+    <string name="no_favorite_tracks">Your media library is empty</string>
+    <string name="favorite_tracks">Favorite tracks</string>
+    <string name="playlists">Playlists</string>
 </resources>
