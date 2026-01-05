@@ -1,0 +1,82 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout_search"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/second_background"
+    android:orientation="vertical"
+    tools:context=".presentation.search.SearchFragment">
+
+    <TextView
+        style="@style/Text_YS_Bold_24"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/search"
+        android:textColor="@color/main_text_color" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp">
+
+        <EditText
+            android:id="@+id/input_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_edittext_background"
+            android:drawableStart="@drawable/ic_search_themed_16"
+            android:drawablePadding="8dp"
+            android:hint="@string/search"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingStart="12dp"
+            android:paddingTop="8.5dp"
+            android:paddingEnd="40dp"
+            android:paddingBottom="8.5dp"
+            android:textColor="@color/search_text_edit_color"
+            android:textColorHint="@color/edit_text_hint_color"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
+            android:textCursorDrawable="@drawable/custom_cursor" />
+
+        <ImageView
+            android:id="@+id/button_clear_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="10dp"
+            android:padding="2dp"
+            android:src="@drawable/ic_clear_16"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <include layout = "@layout/search_track_list" />
+
+    <include
+        android:id="@+id/include_placeholder_empty"
+        layout="@layout/search_placeholder_empty"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/include_placeholder_error"
+        layout="@layout/search_placeholder_error"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/include_placeholder_loading"
+        layout="@layout/search_placeholder_loading"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/search_history"
+        layout="@layout/search_history"
+        android:visibility="gone" />
+
+</LinearLayout>

@@ -2,51 +2,49 @@ package com.mybrain.playlistmaker.presentation.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.mybrain.playlistmaker.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SettingsActivity : AppCompatActivity() {
-    private lateinit var toolbar: Toolbar
+class SettingsFragment : Fragment() {
+
     private lateinit var shareContainer: View
     private lateinit var supportContainer: View
     private lateinit var licenseContainer: View
     private lateinit var themeContainer: SwitchMaterial
     private val viewModel: SettingsViewModel by viewModel()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.settings_activity)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_settings, container, false)
+    }
 
-        initViews()
-        initToolbar()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initViews(view)
         observeState()
         observeEvents()
         setupListeners()
     }
 
-    private fun initViews() {
-        toolbar = findViewById(R.id.toolbar)
-        shareContainer = findViewById(R.id.container_share)
-        supportContainer = findViewById(R.id.container_support)
-        licenseContainer = findViewById(R.id.container_license)
-        themeContainer = findViewById(R.id.switch_theme)
-    }
-
-    private fun initToolbar() {
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener { finish() }
+    private fun initViews(view: View) {
+        shareContainer = view.findViewById(R.id.container_share)
+        supportContainer = view.findViewById(R.id.container_support)
+        licenseContainer = view.findViewById(R.id.container_license)
+        themeContainer = view.findViewById(R.id.switch_theme)
     }
 
     private fun observeState() {
-        viewModel.state.observe(this) { state ->
+        viewModel.state.observe(viewLifecycleOwner) { state ->
             if (themeContainer.isChecked != state.isDarkTheme) {
                 themeContainer.isChecked = state.isDarkTheme
             }
@@ -54,7 +52,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun observeEvents() {
-        viewModel.events.observe(this) { event ->
+        viewModel.events.observe(viewLifecycleOwner) { event ->
             when (event) {
                 SettingsEvent.Share -> shareApp()
                 SettingsEvent.Support -> writeToSupport()
@@ -105,8 +103,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun openLicenseAgreement() {
-        val url = getString(R.string.license_agreement_url)
-        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-        startActivity(intent)
+        findNavController().navigate(R.id.action_settingsFragment_to_eulaFragment)
     }
 }

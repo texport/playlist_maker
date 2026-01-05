@@ -1,24 +1,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/media_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/second_background"
-    tools:context=".presentation.media.MediaActivity"
-    android:fitsSystemWindows="true">
+    android:orientation="vertical"
+    tools:context=".presentation.media.MediaFragment">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <TextView
+        style="@style/Text_YS_Bold_24"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/second_background"
-        app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:navigationIconTint="@color/main_text_color"
-        app:title="@string/media_library"
-        app:titleTextAppearance="@style/Text_YS_Bold_24"
-        app:titleTextColor="@color/main_text_color" />
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/media_library"
+        android:textColor="@color/main_text_color" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
@@ -36,6 +31,6 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

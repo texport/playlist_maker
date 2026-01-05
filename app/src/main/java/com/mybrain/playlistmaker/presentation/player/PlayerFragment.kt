@@ -1,12 +1,15 @@
 package com.mybrain.playlistmaker.presentation.player
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -17,7 +20,8 @@ import com.mybrain.playlistmaker.presentation.entity.TrackUI
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerFragment : Fragment() {
+
     private lateinit var toolbar: MaterialToolbar
     private lateinit var ivArtwork: ImageView
     private lateinit var tvTitle: TextView
@@ -30,23 +34,25 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var itemGenre: View
     private lateinit var itemCountry: View
 
-    private val track: TrackUI by lazy {
-        intent.getParcelableExtra(EXTRA_TRACK_ID) ?: error("Track not found")
-    }
+    private val args by navArgs<PlayerFragmentArgs>()
 
     private val viewModel: PlayerViewModel by viewModel {
-        parametersOf(track)
+        parametersOf(args.track)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_player)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_player, container, false)
+    }
 
-        initViews()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initViews(view)
         initToolbar()
-        bindStaticTrackInfo(track)
-
+        bindStaticTrackInfo(args.track)
         observeViewModel()
 
         btnPlayPause.setOnClickListener {
@@ -59,33 +65,34 @@ class PlayerActivity : AppCompatActivity() {
         viewModel.onScreenPaused()
     }
 
-    private fun initViews() {
-        toolbar = findViewById(R.id.toolbar)
-        ivArtwork = findViewById(R.id.ivArtwork)
-        tvTitle = findViewById(R.id.tvTitle)
-        tvAuthor = findViewById(R.id.tvAuthor)
-        tvProgress = findViewById(R.id.tvPreviewTime)
-        btnPlayPause = findViewById(R.id.btnPlay)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.releasePlayer()
+    }
 
-        itemDuration = findViewById(R.id.itemDuration)
-        itemAlbum = findViewById(R.id.itemAlbum)
-        itemYear = findViewById(R.id.itemYear)
-        itemGenre = findViewById(R.id.itemGenre)
-        itemCountry = findViewById(R.id.itemCountry)
+    private fun initViews(view: View) {
+        toolbar = view.findViewById(R.id.toolbar)
+        ivArtwork = view.findViewById(R.id.ivArtwork)
+        tvTitle = view.findViewById(R.id.tvTitle)
+        tvAuthor = view.findViewById(R.id.tvAuthor)
+        tvProgress = view.findViewById(R.id.tvPreviewTime)
+        btnPlayPause = view.findViewById(R.id.btnPlay)
+
+        itemDuration = view.findViewById(R.id.itemDuration)
+        itemAlbum = view.findViewById(R.id.itemAlbum)
+        itemYear = view.findViewById(R.id.itemYear)
+        itemGenre = view.findViewById(R.id.itemGenre)
+        itemCountry = view.findViewById(R.id.itemCountry)
     }
 
     private fun initToolbar() {
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = ""
-
         toolbar.setNavigationOnClickListener {
-            finish()
+            findNavController().navigateUp()
         }
     }
 
     private fun observeViewModel() {
-        viewModel.uiState.observe(this) { state ->
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
             tvProgress.text = state.progress
 
             btnPlayPause.isEnabled = state.isPlayButtonEnabled
@@ -103,7 +110,7 @@ class PlayerActivity : AppCompatActivity() {
         val bigArtworkUrl = track.artworkUrl100.replace("100x100bb", "512x512bb")
         val radius = resources.getDimensionPixelSize(R.dimen.corner_8)
 
-        Glide.with(this)
+        Glide.with(requireContext())
             .load(bigArtworkUrl)
             .transform(CenterCrop(), RoundedCorners(radius))
             .placeholder(R.drawable.placeholder_track)
@@ -144,9 +151,5 @@ class PlayerActivity : AppCompatActivity() {
         } else {
             null
         }
-    }
-
-    companion object {
-        const val EXTRA_TRACK_ID = "extra_track_id"
     }
 }

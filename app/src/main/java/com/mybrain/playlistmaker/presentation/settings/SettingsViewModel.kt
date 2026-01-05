@@ -10,9 +10,9 @@ class SettingsViewModel(
     private val settingsInteractor: SettingsInteractor
 ) : ViewModel() {
     private val _state = MutableLiveData<SettingsState>()
-    private val _events = MutableLiveData<SettingsEvent>()
+    private val _events = MutableLiveData<SettingsEvent?>()
     val state: LiveData<SettingsState> = _state
-    val events: LiveData<SettingsEvent> = _events
+    val events: LiveData<SettingsEvent?> = _events
 
     init {
         val isDark = settingsInteractor.isDarkTheme()
@@ -35,5 +35,9 @@ class SettingsViewModel(
 
     fun onLicenseClicked() {
         _events.value = SettingsEvent.License
+    }
+
+    fun onEventHandled() {
+        _events.value = null
     }
 }
