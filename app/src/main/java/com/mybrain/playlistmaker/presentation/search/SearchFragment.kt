@@ -1,31 +1,30 @@
 package com.mybrain.playlistmaker.presentation.search
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mybrain.playlistmaker.R
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
-import com.mybrain.playlistmaker.presentation.player.PlayerActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment() {
 
     private lateinit var rootLayout: View
-    private lateinit var toolbar: Toolbar
 
     private lateinit var searchInput: EditText
     private lateinit var clearSearchButton: ImageView
@@ -47,16 +46,25 @@ class SearchActivity : AppCompatActivity() {
     private var canOpenPlayer = true
     private val viewModel: SearchViewModel by viewModel()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.search_activity)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_search, container, false)
+    }
 
-        initViews()
-        initToolbar()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initViews(view)
         initRecyclerViews()
         initListeners()
         observeViewModel()
+
+        clearSearchButton.visibility =
+            if (searchInput.text.isNullOrEmpty()) View.GONE else View.VISIBLE
+
+        searchInput.requestFocus()
     }
 
     override fun onDestroy() {
@@ -64,41 +72,36 @@ class SearchActivity : AppCompatActivity() {
         openPlayerDebounceHandler.removeCallbacksAndMessages(null)
     }
 
-    private fun initViews() {
-        searchInput = findViewById(R.id.input_search)
-        clearSearchButton = findViewById(R.id.button_clear_search)
-        toolbar = findViewById(R.id.toolbar_search)
-        rootLayout = findViewById(R.id.root_layout_search)
+    private fun initViews(view: View) {
+        searchInput = view.findViewById(R.id.input_search)
+        clearSearchButton = view.findViewById(R.id.button_clear_search)
+        rootLayout = view.findViewById(R.id.root_layout_search)
 
-        recyclerView = findViewById(R.id.rvTracks)
-        placeholderEmpty = findViewById(R.id.include_placeholder_empty)
-        placeholderError = findViewById(R.id.include_placeholder_error)
-        placeholderLoading = findViewById(R.id.include_placeholder_loading)
-        retryButton = findViewById(R.id.button_retry)
+        recyclerView = view.findViewById(R.id.rvTracks)
+        placeholderEmpty = view.findViewById(R.id.include_placeholder_empty)
+        placeholderError = view.findViewById(R.id.include_placeholder_error)
+        placeholderLoading = view.findViewById(R.id.include_placeholder_loading)
+        retryButton = view.findViewById(R.id.button_retry)
 
-        searchHistory = findViewById(R.id.search_history)
-        historyRV = findViewById(R.id.rvHistory)
-        clearHistoryButton = findViewById(R.id.btnClearHistory)
-    }
-
-    private fun initToolbar() {
-        toolbar.setNavigationOnClickListener {
-            finish()
-        }
+        searchHistory = view.findViewById(R.id.search_history)
+        historyRV = view.findViewById(R.id.rvHistory)
+        clearHistoryButton = view.findViewById(R.id.btnClearHistory)
     }
 
     private fun initRecyclerViews() {
         adapter = SearchTrackAdapter(mutableListOf()) { track ->
             viewModel.onTrackClicked(track)
+            openPlayer(track)
         }
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
         historyAdapter = SearchTrackAdapter(mutableListOf()) { track ->
             viewModel.onTrackClicked(track)
+            openPlayer(track)
         }
-        historyRV.layoutManager = LinearLayoutManager(this)
+        historyRV.layoutManager = LinearLayoutManager(requireContext())
         historyRV.setHasFixedSize(true)
         historyRV.adapter = historyAdapter
     }
@@ -143,41 +146,28 @@ class SearchActivity : AppCompatActivity() {
         }
 
         rootLayout.setOnClickListener {
-            currentFocus?.let { focusedView ->
-                if (focusedView is EditText) {
-                    hideKeyboard(focusedView)
-                    focusedView.clearFocus()
-                }
-            }
+            hideKeyboard(requireActivity().currentFocus ?: it)
         }
 
         retryButton.setOnClickListener {
             viewModel.onRetryClicked()
         }
-
-        clearSearchButton.visibility =
-            if (searchInput.text.isNullOrEmpty()) View.GONE else View.VISIBLE
-
-        searchInput.requestFocus()
     }
 
     private fun observeViewModel() {
-        viewModel.uiState.observe(this) { state ->
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
             renderState(state)
             clearSearchButton.isEnabled = state != SearchUiState.LOADING
         }
 
-        viewModel.searchResults.observe(this) { tracks ->
+        viewModel.searchResults.observe(viewLifecycleOwner) { tracks ->
             adapter.updateData(tracks)
         }
 
-        viewModel.historyItems.observe(this) { tracks ->
+        viewModel.historyItems.observe(viewLifecycleOwner) { tracks ->
             historyAdapter.updateData(tracks)
         }
 
-        viewModel.openPlayerEvent.observe(this) { track ->
-            openPlayer(track)
-        }
     }
 
     private fun renderState(state: SearchUiState) {
@@ -228,8 +218,8 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun hideKeyboard(view: View) {
-        (getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager)
-            ?.hideSoftInputFromWindow(view.windowToken, 0)
+        val imm = requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
         view.clearFocus()
     }
 
@@ -238,9 +228,8 @@ class SearchActivity : AppCompatActivity() {
 
         canOpenPlayer = false
 
-        val intent = Intent(this, PlayerActivity::class.java)
-        intent.putExtra(PlayerActivity.EXTRA_TRACK_ID, track)
-        startActivity(intent)
+        val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
+        findNavController().navigate(action)
 
         openPlayerDebounceHandler.postDelayed(
             { canOpenPlayer = true },

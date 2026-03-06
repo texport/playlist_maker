@@ -34,9 +34,6 @@ class SearchViewModel(
     private val _historyItems = MutableLiveData<List<TrackUI>>(emptyList())
     val historyItems: LiveData<List<TrackUI>> = _historyItems
 
-    private val _openPlayerEvent = MutableLiveData<TrackUI>()
-    val openPlayerEvent: LiveData<TrackUI> = _openPlayerEvent
-
     private val searchRunnable = Runnable {
         val q = currentSearchText.trim()
         if (q.isNotEmpty()) {
@@ -89,7 +86,6 @@ class SearchViewModel(
 
     fun onTrackClicked(track: TrackUI) {
         historyInteractor.add(track.toTrackDomain())
-        _openPlayerEvent.value = track
         loadHistory()
         recalcUiState()
     }

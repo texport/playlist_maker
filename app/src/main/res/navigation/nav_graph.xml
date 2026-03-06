@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mediaFragment">
+
+    <fragment
+        android:id="@+id/mediaFragment"
+        android:name="com.mybrain.playlistmaker.presentation.media.MediaFragment"
+        android:label="fragment_media"
+        tools:layout="@layout/fragment_media" />
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.mybrain.playlistmaker.presentation.search.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.mybrain.playlistmaker.presentation.settings.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settingsFragment_to_eulaFragment"
+            app:destination="@id/eulaFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/eulaFragment"
+        android:name="com.mybrain.playlistmaker.presentation.settings.EulaFragment"
+        android:label="fragment_eula"
+        tools:layout="@layout/fragment_eula" />
+
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.mybrain.playlistmaker.presentation.player.PlayerFragment"
+        android:label="fragment_player"
+        tools:layout="@layout/fragment_player" >
+        <argument
+            android:name="track"
+            app:argType="com.mybrain.playlistmaker.presentation.entity.TrackUI" />
+    </fragment>
+
+</navigation>

@@ -47,7 +47,6 @@ class PlayerViewModel(
 
         when (current.playbackState) {
             PlaybackState.IDLE -> {
-                // ещё готовимся: когда подготовимся – сразу стартанём
                 shouldPlayWhenPrepared = true
             }
 
@@ -71,6 +70,13 @@ class PlayerViewModel(
         if (current.playbackState == PlaybackState.PLAYING) {
             pausePlayback()
         }
+    }
+
+    fun releasePlayer() {
+        stopProgressUpdates()
+        runCatching { mediaPlayer.stop() }
+        runCatching { mediaPlayer.reset() }
+        runCatching { mediaPlayer.release() }
     }
 
     private fun preparePlayer(previewUrl: String?) {
@@ -139,9 +145,6 @@ class PlayerViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        stopProgressUpdates()
-        runCatching { mediaPlayer.stop() }
-        runCatching { mediaPlayer.reset() }
-        runCatching { mediaPlayer.release() }
+        releasePlayer()
     }
 }
