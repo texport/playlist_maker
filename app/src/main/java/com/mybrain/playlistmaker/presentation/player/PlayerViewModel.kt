@@ -1,19 +1,22 @@
 package com.mybrain.playlistmaker.presentation.player
 
 import android.media.MediaPlayer
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mybrain.playlistmaker.Utils
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class PlayerViewModel(
     private val track: TrackUI,
     private val mediaPlayer: MediaPlayer
 ) : ViewModel() {
-    private val handler = Handler(Looper.getMainLooper())
+
+    private var timerJob: Job? = null
     private var shouldPlayWhenPrepared = false
 
     private val _uiState = MutableLiveData(
@@ -24,19 +27,6 @@ class PlayerViewModel(
         )
     )
     val uiState: LiveData<PlayerUiState> = _uiState
-
-    private val progressRunnable = object : Runnable {
-        override fun run() {
-            val current = _uiState.value ?: return
-            if (current.playbackState == PlaybackState.PLAYING) {
-                val positionMs = mediaPlayer.currentPosition
-                _uiState.value = current.copy(
-                    progress = Utils.formatTime(positionMs)
-                )
-                handler.postDelayed(this, 500L)
-            }
-        }
-    }
 
     init {
         preparePlayer(track.previewUrl)
@@ -136,15 +126,27 @@ class PlayerViewModel(
     }
 
     private fun startProgressUpdates() {
-        handler.post(progressRunnable)
+        timerJob = viewModelScope.launch {
+            while (mediaPlayer.isPlaying) {
+                val current = _uiState.value ?: break
+                _uiState.value = current.copy(
+                    progress = Utils.formatTime(mediaPlayer.currentPosition)
+                )
+                delay(UPDATE_DELAY_MS)
+            }
+        }
     }
 
     private fun stopProgressUpdates() {
-        handler.removeCallbacks(progressRunnable)
+        timerJob?.cancel()
     }
 
     override fun onCleared() {
         super.onCleared()
         releasePlayer()
+    }
+
+    companion object {
+        private const val UPDATE_DELAY_MS = 300L
     }
 }
