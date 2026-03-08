@@ -10,18 +10,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class TrackRepositoryImpl(
-    private val remoteDataSource: ItunesRemoteDataSource,
-    private val appDatabase: com.mybrain.playlistmaker.data.db.AppDatabase
+    private val remoteDataSource: ItunesRemoteDataSource
 ) : TrackRepository {
     override fun search(params: TrackSearchParams): Flow<Result<List<TrackDomain>>> = flow {
         val requestDto = params.toRequestDto()
         val result = remoteDataSource.search(requestDto)
 
         result.onSuccess { response ->
-            val favoriteIds = appDatabase.favoriteTracksDao().getFavoriteTrackIds()
-            val tracks = response.results.map { 
-                it.toDomain().apply { isFavorite = favoriteIds.contains(trackId) }
-            }
+            val tracks = response.results.map { it.toDomain() }
             emit(Result.success(tracks))
         }.onFailure { error ->
             emit(Result.failure(error))

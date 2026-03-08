@@ -19,4 +19,8 @@ class FavoriteTracksInteractorImpl(private val repository: FavoriteTracksReposit
     override fun getFavoriteTracks(): Flow<List<TrackDomain>> {
         return repository.getFavoriteTracks()
     }
+
+    override suspend fun isTrackInFavorites(trackId: Long): Boolean {
+        return trackId in repository.getFavoriteTrackIds()
+    }
 }

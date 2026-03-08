@@ -35,6 +35,13 @@ class PlayerViewModel(
 
     init {
         preparePlayer(track.previewUrl)
+        viewModelScope.launch {
+            val inFavorites = favoriteTracksInteractor.isTrackInFavorites(track.trackId)
+            val current = _uiState.value ?: return@launch
+            if (current.isFavorite != inFavorites) {
+                _uiState.value = current.copy(isFavorite = inFavorites)
+            }
+        }
     }
 
     fun onFavoriteClicked() {
