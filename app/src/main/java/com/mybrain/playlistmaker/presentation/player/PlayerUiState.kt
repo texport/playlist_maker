@@ -5,7 +5,8 @@ import com.mybrain.playlistmaker.presentation.entity.TrackUI
 data class PlayerUiState(
     val track: TrackUI,
     val playbackState: PlaybackState = PlaybackState.IDLE,
-    val progress: String = "00:00"
+    val progress: String = "00:00",
+    val isFavorite: Boolean = track.isFavorite
 ) {
     val isPlaying: Boolean
         get() = playbackState == PlaybackState.PLAYING

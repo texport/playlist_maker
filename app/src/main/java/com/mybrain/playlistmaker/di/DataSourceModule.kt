@@ -5,6 +5,7 @@ import com.mybrain.playlistmaker.data.datasource.local.PrefsLocalDataSource
 import com.mybrain.playlistmaker.data.datasource.local.SearchHistoryLocalDataSource
 import com.mybrain.playlistmaker.data.datasource.local.ThemePreferencesLocalDataSource
 import com.mybrain.playlistmaker.data.datasource.remote.ItunesRemoteDataSource
+import com.mybrain.playlistmaker.data.db.AppDatabase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -18,4 +19,14 @@ val dataSourceModule = module {
 
     // remote
     single { ItunesRemoteDataSource(get()) }
+
+    // db
+    single { 
+        androidx.room.Room.databaseBuilder(
+            androidContext(),
+            AppDatabase::class.java,
+            "database.db"
+        ).build()
+    }
+    single { get<AppDatabase>().favoriteTracksDao() }
 }

@@ -28,6 +28,7 @@ class PlayerFragment : Fragment() {
     private lateinit var tvAuthor: TextView
     private lateinit var tvProgress: TextView
     private lateinit var btnPlayPause: ImageButton
+    private lateinit var btnFavorite: ImageButton
     private lateinit var itemDuration: View
     private lateinit var itemAlbum: View
     private lateinit var itemYear: View
@@ -58,6 +59,10 @@ class PlayerFragment : Fragment() {
         btnPlayPause.setOnClickListener {
             viewModel.onPlayPauseClicked()
         }
+
+        btnFavorite.setOnClickListener {
+            viewModel.onFavoriteClicked()
+        }
     }
 
     override fun onPause() {
@@ -77,6 +82,7 @@ class PlayerFragment : Fragment() {
         tvAuthor = view.findViewById(R.id.tvAuthor)
         tvProgress = view.findViewById(R.id.tvPreviewTime)
         btnPlayPause = view.findViewById(R.id.btnPlay)
+        btnFavorite = view.findViewById(R.id.btnFavorite)
 
         itemDuration = view.findViewById(R.id.itemDuration)
         itemAlbum = view.findViewById(R.id.itemAlbum)
@@ -99,6 +105,11 @@ class PlayerFragment : Fragment() {
             btnPlayPause.setBackgroundResource(
                 if (state.isPlaying) R.drawable.ic_pause_button_100
                 else R.drawable.ic_play_button_100
+            )
+
+            btnFavorite.setBackgroundResource(
+                if (state.isFavorite) R.drawable.ic_like_button_active_51
+                else R.drawable.ic_like_button_51
             )
         }
     }
