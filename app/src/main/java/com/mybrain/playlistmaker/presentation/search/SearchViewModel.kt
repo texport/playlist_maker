@@ -1,27 +1,29 @@
 package com.mybrain.playlistmaker.presentation.search
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mybrain.playlistmaker.domain.interactors.SearchHistoryInteractor
 import com.mybrain.playlistmaker.domain.interactors.SearchInteractor
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
 import com.mybrain.playlistmaker.presentation.mappers.toTrackDomain
 import com.mybrain.playlistmaker.presentation.mappers.toTrackSearchParams
 import com.mybrain.playlistmaker.presentation.mappers.toUI
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SearchViewModel(
     private val searchInteractor: SearchInteractor,
     private val historyInteractor: SearchHistoryInteractor
 ) : ViewModel() {
 
-    private val handler = Handler(Looper.getMainLooper())
-    private val debounceDelayMs = 2000L
+    private var searchJob: Job? = null
+    private var clickJob: Job? = null
+    private var isClickAllowed = true
 
     private var currentSearchText: String = ""
-    private var currentRequestId = 0
     private var lastQuery: String? = null
     private var hasFocus: Boolean = false
 
@@ -34,16 +36,6 @@ class SearchViewModel(
     private val _historyItems = MutableLiveData<List<TrackUI>>(emptyList())
     val historyItems: LiveData<List<TrackUI>> = _historyItems
 
-    private val searchRunnable = Runnable {
-        val q = currentSearchText.trim()
-        if (q.isNotEmpty()) {
-            doSearch(q)
-        } else {
-            _searchResults.value = emptyList()
-            recalcUiState()
-        }
-    }
-
     init {
         loadHistory()
         recalcUiState()
@@ -51,18 +43,21 @@ class SearchViewModel(
 
     fun onSearchTextChanged(text: String) {
         currentSearchText = text
-        handler.removeCallbacks(searchRunnable)
+        searchJob?.cancel()
 
         if (text.isBlank()) {
             _searchResults.value = emptyList()
             recalcUiState()
         } else {
-            handler.postDelayed(searchRunnable, debounceDelayMs)
+            searchJob = viewModelScope.launch {
+                delay(SEARCH_DEBOUNCE_DELAY_MS)
+                doSearch(text)
+            }
         }
     }
 
     fun onSearchAction(text: String) {
-        handler.removeCallbacks(searchRunnable)
+        searchJob?.cancel()
         val q = text.trim()
         if (q.isNotEmpty()) {
             doSearch(q)
@@ -85,9 +80,23 @@ class SearchViewModel(
     }
 
     fun onTrackClicked(track: TrackUI) {
-        historyInteractor.add(track.toTrackDomain())
-        loadHistory()
-        recalcUiState()
+        if (clickDebounce()) {
+            historyInteractor.add(track.toTrackDomain())
+            loadHistory()
+            recalcUiState()
+        }
+    }
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            clickJob = viewModelScope.launch {
+                delay(CLICK_DEBOUNCE_DELAY_MS)
+                isClickAllowed = true
+            }
+        }
+        return current
     }
 
     private fun loadHistory() {
@@ -95,27 +104,28 @@ class SearchViewModel(
     }
 
     private fun doSearch(q: String) {
-        val requestId = ++currentRequestId
+        if (q.isBlank()) return
+
         lastQuery = q
+        _uiState.value = SearchUiState.LOADING
 
-        _uiState.postValue(SearchUiState.LOADING)
+        viewModelScope.launch {
+            searchInteractor.search(q.toTrackSearchParams())
+                .collect { result ->
+                    result.onSuccess { tracks ->
+                        val uiTracks = tracks.map { it.toUI() }
+                        _searchResults.value = uiTracks
 
-        searchInteractor.search(q.toTrackSearchParams()) { result ->
-            if (requestId != currentRequestId) return@search
-
-            result.onSuccess { tracks ->
-                val uiTracks = tracks.map { it.toUI() }
-                _searchResults.postValue(uiTracks)
-
-                if (tracks.isEmpty()) {
-                    _uiState.postValue(SearchUiState.EMPTY)
-                } else {
-                    _uiState.postValue(SearchUiState.LIST)
+                        if (tracks.isEmpty()) {
+                            _uiState.value = SearchUiState.EMPTY
+                        } else {
+                            _uiState.value = SearchUiState.LIST
+                        }
+                    }.onFailure {
+                        _searchResults.value = emptyList()
+                        _uiState.value = SearchUiState.ERROR
+                    }
                 }
-            }.onFailure {
-                _searchResults.postValue(emptyList())
-                _uiState.postValue(SearchUiState.ERROR)
-            }
         }
     }
 
@@ -136,8 +146,8 @@ class SearchViewModel(
         _uiState.value = newState
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        handler.removeCallbacksAndMessages(null)
+    companion object {
+        private const val SEARCH_DEBOUNCE_DELAY_MS = 2000L
+        private const val CLICK_DEBOUNCE_DELAY_MS = 1000L
     }
 }
