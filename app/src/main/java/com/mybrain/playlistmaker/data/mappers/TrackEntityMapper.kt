@@ -1,36 +1,36 @@
-package com.mybrain.playlistmaker.presentation.mappers
+package com.mybrain.playlistmaker.data.mappers
 
+import com.mybrain.playlistmaker.data.db.entity.TrackEntity
 import com.mybrain.playlistmaker.domain.entity.TrackDomain
-import com.mybrain.playlistmaker.presentation.entity.TrackUI
 
-fun TrackDomain.toUI(): TrackUI {
-    return TrackUI(
+fun TrackDomain.toTrackEntity(): TrackEntity {
+    return TrackEntity(
         trackId = trackId,
         trackName = trackName,
         artistName = artistName,
-        trackTime = trackTime.toString(),
+        trackTime = trackTime,
         artworkUrl100 = artworkUrl100,
         collectionName = collectionName,
         releaseDate = releaseDate,
         primaryGenreName = primaryGenreName,
         country = country,
         previewUrl = previewUrl,
-        isFavorite = isFavorite
+        timestamp = System.currentTimeMillis()
     )
 }
 
-fun TrackUI.toTrackDomain(): TrackDomain {
+fun TrackEntity.toDomain(): TrackDomain {
     return TrackDomain(
         trackId = trackId,
         trackName = trackName,
         artistName = artistName,
-        trackTime = trackTime.toLong(),
+        trackTime = trackTime,
         artworkUrl100 = artworkUrl100,
         collectionName = collectionName,
         releaseDate = releaseDate,
         primaryGenreName = primaryGenreName,
         country = country,
         previewUrl = previewUrl,
-        isFavorite = isFavorite
+        isFavorite = true
     )
 }

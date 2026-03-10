@@ -1,19 +1,20 @@
-package com.mybrain.playlistmaker.presentation.entity
+package com.mybrain.playlistmaker.data.db.entity
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-@Parcelize
-data class TrackUI(
+@Entity(tableName = "favorite_tracks")
+data class TrackEntity(
+    @PrimaryKey
     val trackId: Long,
     val trackName: String,
     val artistName: String,
-    val trackTime: String,
+    val trackTime: Long,
     val artworkUrl100: String,
     val collectionName: String,
     val releaseDate: String,
     val primaryGenreName: String,
     val country: String,
     val previewUrl: String,
-    var isFavorite: Boolean = false
-) : Parcelable
+    val timestamp: Long
+)

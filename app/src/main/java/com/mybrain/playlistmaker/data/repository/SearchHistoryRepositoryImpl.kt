@@ -10,8 +10,9 @@ class SearchHistoryRepositoryImpl(
     private val local: SearchHistoryLocalDataSource
 ) : SearchHistoryRepository {
 
-    override fun get(): List<TrackDomain> =
-        local.get().map { it.toTrackDomain() }
+    override fun get(): List<TrackDomain> {
+        return local.get().map { it.toTrackDomain() }
+    }
 
     override fun add(track: TrackDomain) {
         local.add(track.toTrackLocalDto())

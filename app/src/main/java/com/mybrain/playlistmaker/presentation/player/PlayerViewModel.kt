@@ -6,30 +6,58 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mybrain.playlistmaker.Utils
+import com.mybrain.playlistmaker.domain.interactors.FavoriteTracksInteractor
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
+import com.mybrain.playlistmaker.presentation.mappers.toTrackDomain
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(
-    private val track: TrackUI,
-    private val mediaPlayer: MediaPlayer
+        private val track: TrackUI,
+        private val mediaPlayer: MediaPlayer,
+        private val favoriteTracksInteractor: FavoriteTracksInteractor
 ) : ViewModel() {
 
     private var timerJob: Job? = null
     private var shouldPlayWhenPrepared = false
 
-    private val _uiState = MutableLiveData(
-        PlayerUiState(
-            track = track,
-            playbackState = PlaybackState.IDLE,
-            progress = "00:00"
-        )
-    )
+    private val _uiState =
+            MutableLiveData(
+                    PlayerUiState(
+                            track = track,
+                            playbackState = PlaybackState.IDLE,
+                            progress = "00:00",
+                            isFavorite = track.isFavorite
+                    )
+            )
     val uiState: LiveData<PlayerUiState> = _uiState
 
     init {
         preparePlayer(track.previewUrl)
+        viewModelScope.launch {
+            val inFavorites = favoriteTracksInteractor.isTrackInFavorites(track.trackId)
+            val current = _uiState.value ?: return@launch
+            if (current.isFavorite != inFavorites) {
+                _uiState.value = current.copy(isFavorite = inFavorites)
+            }
+        }
+    }
+
+    fun onFavoriteClicked() {
+        val current = _uiState.value ?: return
+        val newIsFavorite = !current.isFavorite
+
+        viewModelScope.launch {
+            val domainTrack = track.toTrackDomain()
+            if (newIsFavorite) {
+                favoriteTracksInteractor.addTrackToFavorites(domainTrack)
+            } else {
+                favoriteTracksInteractor.removeTrackFromFavorites(domainTrack)
+            }
+        }
+
+        _uiState.value = current.copy(isFavorite = newIsFavorite)
     }
 
     fun onPlayPauseClicked() {
@@ -39,16 +67,12 @@ class PlayerViewModel(
             PlaybackState.IDLE -> {
                 shouldPlayWhenPrepared = true
             }
-
-            PlaybackState.PREPARED,
-            PlaybackState.COMPLETED -> {
+            PlaybackState.PREPARED, PlaybackState.COMPLETED -> {
                 startPlayback()
             }
-
             PlaybackState.PLAYING -> {
                 pausePlayback()
             }
-
             PlaybackState.PAUSED -> {
                 resumePlayback()
             }
@@ -71,10 +95,8 @@ class PlayerViewModel(
 
     private fun preparePlayer(previewUrl: String?) {
         if (previewUrl.isNullOrBlank()) {
-            _uiState.value = _uiState.value?.copy(
-                playbackState = PlaybackState.IDLE,
-                progress = "00:00"
-            )
+            _uiState.value =
+                    _uiState.value?.copy(playbackState = PlaybackState.IDLE, progress = "00:00")
             return
         }
 
@@ -82,10 +104,8 @@ class PlayerViewModel(
 
         mediaPlayer.setOnPreparedListener {
             val current = _uiState.value ?: return@setOnPreparedListener
-            _uiState.value = current.copy(
-                playbackState = PlaybackState.PREPARED,
-                progress = "00:00"
-            )
+            _uiState.value =
+                    current.copy(playbackState = PlaybackState.PREPARED, progress = "00:00")
 
             if (shouldPlayWhenPrepared) {
                 shouldPlayWhenPrepared = false
@@ -96,10 +116,8 @@ class PlayerViewModel(
         mediaPlayer.setOnCompletionListener {
             val current = _uiState.value ?: return@setOnCompletionListener
             stopProgressUpdates()
-            _uiState.value = current.copy(
-                playbackState = PlaybackState.COMPLETED,
-                progress = "00:00"
-            )
+            _uiState.value =
+                    current.copy(playbackState = PlaybackState.COMPLETED, progress = "00:00")
         }
 
         mediaPlayer.prepareAsync()
@@ -108,9 +126,7 @@ class PlayerViewModel(
     private fun startPlayback() {
         mediaPlayer.start()
         val current = _uiState.value ?: return
-        _uiState.value = current.copy(
-            playbackState = PlaybackState.PLAYING
-        )
+        _uiState.value = current.copy(playbackState = PlaybackState.PLAYING)
         startProgressUpdates()
     }
 
@@ -119,22 +135,22 @@ class PlayerViewModel(
     private fun pausePlayback() {
         mediaPlayer.pause()
         val current = _uiState.value ?: return
-        _uiState.value = current.copy(
-            playbackState = PlaybackState.PAUSED
-        )
+        _uiState.value = current.copy(playbackState = PlaybackState.PAUSED)
         stopProgressUpdates()
     }
 
     private fun startProgressUpdates() {
-        timerJob = viewModelScope.launch {
-            while (mediaPlayer.isPlaying) {
-                val current = _uiState.value ?: break
-                _uiState.value = current.copy(
-                    progress = Utils.formatTime(mediaPlayer.currentPosition)
-                )
-                delay(UPDATE_DELAY_MS)
-            }
-        }
+        timerJob =
+                viewModelScope.launch {
+                    while (mediaPlayer.isPlaying) {
+                        val current = _uiState.value ?: break
+                        _uiState.value =
+                                current.copy(
+                                        progress = Utils.formatTime(mediaPlayer.currentPosition)
+                                )
+                        delay(UPDATE_DELAY_MS)
+                    }
+                }
     }
 
     private fun stopProgressUpdates() {
