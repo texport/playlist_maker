@@ -7,13 +7,18 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.view.Gravity
+import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mybrain.playlistmaker.R
 import com.mybrain.playlistmaker.Utils
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
@@ -28,12 +33,20 @@ class PlayerFragment : Fragment() {
     private lateinit var tvAuthor: TextView
     private lateinit var tvProgress: TextView
     private lateinit var btnPlayPause: ImageButton
+    private lateinit var btnAddToPlaylist: ImageButton
     private lateinit var btnFavorite: ImageButton
     private lateinit var itemDuration: View
     private lateinit var itemAlbum: View
     private lateinit var itemYear: View
     private lateinit var itemGenre: View
     private lateinit var itemCountry: View
+    private lateinit var overlay: View
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private lateinit var bottomSheetRecycler: RecyclerView
+    private lateinit var bottomSheetNewPlaylist: View
+    private val bottomSheetAdapter = PlayerPlaylistsAdapter { playlist ->
+        viewModel.onPlaylistClicked(playlist)
+    }
 
     private val args by navArgs<PlayerFragmentArgs>()
 
@@ -53,6 +66,7 @@ class PlayerFragment : Fragment() {
 
         initViews(view)
         initToolbar()
+        initBottomSheet(view)
         bindStaticTrackInfo(args.track)
         observeViewModel()
 
@@ -62,6 +76,11 @@ class PlayerFragment : Fragment() {
 
         btnFavorite.setOnClickListener {
             viewModel.onFavoriteClicked()
+        }
+
+        btnAddToPlaylist.setOnClickListener {
+            viewModel.loadPlaylists()
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
     }
 
@@ -82,6 +101,7 @@ class PlayerFragment : Fragment() {
         tvAuthor = view.findViewById(R.id.tvAuthor)
         tvProgress = view.findViewById(R.id.tvPreviewTime)
         btnPlayPause = view.findViewById(R.id.btnPlay)
+        btnAddToPlaylist = view.findViewById(R.id.btnAddToPlaylist)
         btnFavorite = view.findViewById(R.id.btnFavorite)
 
         itemDuration = view.findViewById(R.id.itemDuration)
@@ -89,12 +109,44 @@ class PlayerFragment : Fragment() {
         itemYear = view.findViewById(R.id.itemYear)
         itemGenre = view.findViewById(R.id.itemGenre)
         itemCountry = view.findViewById(R.id.itemCountry)
+        overlay = view.findViewById(R.id.overlay)
     }
 
     private fun initToolbar() {
         toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
+    }
+
+    private fun initBottomSheet(view: View) {
+        val bottomSheet = view.findViewById<View>(R.id.bottom_sheet)
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet).apply {
+            state = BottomSheetBehavior.STATE_HIDDEN
+            isFitToContents = false
+            halfExpandedRatio = 2f / 3f
+            skipCollapsed = true
+        }
+
+        bottomSheetRecycler = view.findViewById(R.id.bottom_sheet_playlists)
+        bottomSheetRecycler.layoutManager = LinearLayoutManager(requireContext())
+        bottomSheetRecycler.adapter = bottomSheetAdapter
+
+        bottomSheetNewPlaylist = view.findViewById(R.id.bottom_sheet_new_playlist)
+        bottomSheetNewPlaylist.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            findNavController().navigate(R.id.action_playerFragment_to_createPlaylistFragment)
+        }
+
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                overlay.visibility =
+                    if (newState == BottomSheetBehavior.STATE_HIDDEN) View.GONE else View.VISIBLE
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                overlay.alpha = slideOffset.coerceIn(0f, 1f)
+            }
+        })
     }
 
     private fun observeViewModel() {
@@ -112,6 +164,58 @@ class PlayerFragment : Fragment() {
                 else R.drawable.ic_like_button_51
             )
         }
+
+        viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
+            bottomSheetAdapter.submitList(playlists)
+        }
+
+        viewModel.addToPlaylistState.observe(viewLifecycleOwner) { state ->
+            if (state == null) return@observe
+
+            when (state) {
+                is AddToPlaylistState.Added -> {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    showPlaylistMessage(getString(R.string.playlist_added, state.playlistName))
+                }
+                is AddToPlaylistState.AlreadyAdded -> {
+                    showPlaylistMessage(getString(R.string.playlist_already_added, state.playlistName))
+                }
+            }
+
+            viewModel.resetAddToPlaylistState()
+        }
+    }
+
+    private fun showPlaylistMessage(message: String) {
+        val rootView = requireActivity().findViewById<View>(android.R.id.content)
+        val snackbar = com.google.android.material.snackbar.Snackbar.make(
+            rootView,
+            message,
+            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+        )
+        val snackbarView = snackbar.view
+        snackbarView.setBackgroundResource(R.drawable.snackbar_black_rounded)
+        snackbar.setTextColor(
+            androidx.core.content.ContextCompat.getColor(
+                requireContext(),
+                R.color.second_background
+            )
+        )
+        val snackbarHeight = resources.getDimensionPixelSize(R.dimen.snackbar_max_height)
+        snackbarView.layoutParams.height = snackbarHeight
+        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView?.apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_size_14))
+            gravity = Gravity.CENTER
+        }
+        val params = snackbarView.layoutParams as? ViewGroup.MarginLayoutParams
+        if (params != null) {
+            val horizontal = resources.getDimensionPixelSize(R.dimen.snackbar_margin_horizontal)
+            val bottom = resources.getDimensionPixelSize(R.dimen.snackbar_margin_bottom)
+            params.setMargins(horizontal, params.topMargin, horizontal, bottom)
+            snackbarView.layoutParams = params
+        }
+        snackbar.show()
     }
 
     private fun bindStaticTrackInfo(track: TrackUI) {

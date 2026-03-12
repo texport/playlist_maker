@@ -9,6 +9,7 @@ import com.mybrain.playlistmaker.di.repositoryModule
 import com.mybrain.playlistmaker.di.viewModelModule
 import com.mybrain.playlistmaker.domain.interactors.SettingsInteractor
 import com.mybrain.playlistmaker.presentation.utils.ThemeManagerUI
+import com.markodevcic.peko.PermissionRequester
 import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -18,6 +19,8 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        PermissionRequester.initialize(this)
 
         startKoin {
             androidContext(this@App)

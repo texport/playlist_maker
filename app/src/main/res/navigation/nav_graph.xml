@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_mediaFragment_to_playerFragment"
             app:destination="@id/playerFragment" />
+        <action
+            android:id="@+id/action_mediaFragment_to_createPlaylistFragment"
+            app:destination="@id/createPlaylistFragment" />
     </fragment>
 
     <fragment
@@ -49,6 +52,15 @@
         <argument
             android:name="track"
             app:argType="com.mybrain.playlistmaker.presentation.entity.TrackUI" />
+        <action
+            android:id="@+id/action_playerFragment_to_createPlaylistFragment"
+            app:destination="@id/createPlaylistFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/createPlaylistFragment"
+        android:name="com.mybrain.playlistmaker.presentation.playlist.CreatePlaylistFragment"
+        android:label="fragment_create_playlist"
+        tools:layout="@layout/fragment_create_playlist" />
 
 </navigation>

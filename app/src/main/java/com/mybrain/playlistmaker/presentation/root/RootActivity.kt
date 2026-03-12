@@ -33,4 +33,11 @@ class RootActivity : AppCompatActivity() {
         }
 
     }
+
+    fun setBottomNavVisible(isVisible: Boolean) {
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        val bottomNavBorder = findViewById<View>(R.id.bottom_nav_border)
+        bottomNavigationView.visibility = if (isVisible) View.VISIBLE else View.GONE
+        bottomNavBorder.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
 }
