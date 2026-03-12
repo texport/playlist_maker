@@ -4,6 +4,7 @@ import com.mybrain.playlistmaker.presentation.entity.TrackUI
 import com.mybrain.playlistmaker.presentation.media.FavoriteTracksViewModel
 import com.mybrain.playlistmaker.presentation.media.PlaylistsViewModel
 import com.mybrain.playlistmaker.presentation.playlist.CreatePlaylistViewModel
+import com.mybrain.playlistmaker.presentation.playlist.PlaylistViewModel
 import com.mybrain.playlistmaker.presentation.player.PlayerViewModel
 import com.mybrain.playlistmaker.presentation.search.SearchViewModel
 import com.mybrain.playlistmaker.presentation.settings.SettingsViewModel
@@ -18,5 +19,6 @@ val viewModelModule = module {
     }
     viewModel { PlaylistsViewModel(get()) }
     viewModel { CreatePlaylistViewModel(get(), get()) }
+    viewModel { (playlistId: Long) -> PlaylistViewModel(playlistId, get()) }
     viewModel { FavoriteTracksViewModel(get()) }
 }

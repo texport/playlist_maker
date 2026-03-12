@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.mybrain.playlistmaker.data.db.entity.PlaylistTrackEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlaylistTracksDao {
@@ -25,4 +26,17 @@ interface PlaylistTracksDao {
 
     @Query("SELECT COUNT(*) FROM playlist_tracks WHERE playlistId = :playlistId")
     suspend fun getTrackCount(playlistId: Long): Int
+
+    @Query(
+        "SELECT trackId FROM playlist_tracks WHERE playlistId = :playlistId ORDER BY addedAt DESC"
+    )
+    fun getTrackIdsByPlaylist(playlistId: Long): Flow<List<Long>>
+
+    @Query(
+        "SELECT trackId FROM playlist_tracks WHERE playlistId = :playlistId ORDER BY addedAt DESC"
+    )
+    suspend fun getTrackIdsByPlaylistOnce(playlistId: Long): List<Long>
+
+    @Query("DELETE FROM playlist_tracks WHERE playlistId = :playlistId AND trackId = :trackId")
+    suspend fun deleteTrackFromPlaylist(playlistId: Long, trackId: Long): Int
 }

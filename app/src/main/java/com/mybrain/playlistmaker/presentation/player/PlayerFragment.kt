@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mybrain.playlistmaker.R
@@ -225,12 +226,16 @@ class PlayerFragment : Fragment() {
         val bigArtworkUrl = track.artworkUrl100.replace("100x100bb", "512x512bb")
         val radius = resources.getDimensionPixelSize(R.dimen.corner_8)
 
+        Glide.with(requireContext()).clear(ivArtwork)
+        ivArtwork.setImageResource(R.drawable.placeholder_track)
         Glide.with(requireContext())
             .load(bigArtworkUrl)
             .transform(CenterCrop(), RoundedCorners(radius))
             .placeholder(R.drawable.placeholder_track)
             .error(R.drawable.placeholder_track)
             .fallback(R.drawable.placeholder_track)
+            .thumbnail(0.25f)
+            .transition(DrawableTransitionOptions.withCrossFade())
             .into(ivArtwork)
 
         itemDuration.findViewById<TextView>(R.id.tvLabel).text = getString(R.string.label_duration)

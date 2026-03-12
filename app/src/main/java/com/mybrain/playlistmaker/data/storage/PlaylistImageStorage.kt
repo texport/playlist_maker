@@ -11,24 +11,26 @@ class PlaylistImageStorage(private val context: Context) {
     fun saveCover(coverUri: String?): String? {
         if (coverUri.isNullOrBlank()) return null
 
-        val uri = coverUri.toUri()
-        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+        return runCatching {
+            val uri = coverUri.toUri()
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
 
-        val folder = File(context.filesDir, COVERS_DIR)
-        if (!folder.exists()) {
-            folder.mkdirs()
-        }
-
-        val extension = getExtension(uri) ?: DEFAULT_EXTENSION
-        val destFile = File(folder, "${COVER_PREFIX}${System.currentTimeMillis()}.$extension")
-
-        inputStream.use { input ->
-            destFile.outputStream().use { output ->
-                input.copyTo(output)
+            val folder = File(context.filesDir, COVERS_DIR)
+            if (!folder.exists()) {
+                folder.mkdirs()
             }
-        }
 
-        return destFile.absolutePath
+            val extension = getExtension(uri) ?: DEFAULT_EXTENSION
+            val destFile = File(folder, "${COVER_PREFIX}${System.currentTimeMillis()}.$extension")
+
+            inputStream.use { input ->
+                destFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            destFile.absolutePath
+        }.getOrNull()
     }
 
     private fun getExtension(uri: Uri): String? {

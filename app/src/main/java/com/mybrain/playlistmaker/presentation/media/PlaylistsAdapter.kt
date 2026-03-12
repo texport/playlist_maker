@@ -13,7 +13,10 @@ import com.mybrain.playlistmaker.databinding.ItemPlaylistBinding
 import com.mybrain.playlistmaker.presentation.entity.PlaylistUI
 import java.io.File
 
-class PlaylistsAdapter : ListAdapter<PlaylistUI, PlaylistsAdapter.PlaylistViewHolder>(DiffCallback()) {
+class PlaylistsAdapter(
+    private val onPlaylistClick: (PlaylistUI) -> Unit,
+    private val onPlaylistLongClick: (android.view.View, PlaylistUI) -> Unit
+) : ListAdapter<PlaylistUI, PlaylistsAdapter.PlaylistViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
         val binding = ItemPlaylistBinding.inflate(
@@ -28,7 +31,7 @@ class PlaylistsAdapter : ListAdapter<PlaylistUI, PlaylistsAdapter.PlaylistViewHo
         holder.bind(getItem(position))
     }
 
-    class PlaylistViewHolder(private val binding: ItemPlaylistBinding) :
+    inner class PlaylistViewHolder(private val binding: ItemPlaylistBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: PlaylistUI) {
@@ -49,7 +52,33 @@ class PlaylistsAdapter : ListAdapter<PlaylistUI, PlaylistsAdapter.PlaylistViewHo
                 .error(R.drawable.placeholder_track)
                 .fallback(R.drawable.placeholder_track)
                 .into(binding.ivCover)
+
+            binding.root.animate().cancel()
+            binding.root.scaleX = 1f
+            binding.root.scaleY = 1f
+            binding.root.setOnClickListener { onPlaylistClick(item) }
+            binding.root.setOnLongClickListener {
+                binding.root.animate()
+                    .scaleX(PRESS_SCALE)
+                    .scaleY(PRESS_SCALE)
+                    .setDuration(PRESS_ANIM_DURATION_MS)
+                    .setInterpolator(android.view.animation.DecelerateInterpolator())
+                    .withEndAction {
+                        binding.root.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(RELEASE_ANIM_DURATION_MS)
+                            .setInterpolator(android.view.animation.DecelerateInterpolator())
+                            .start()
+                    }
+                    .start()
+            binding.root.postDelayed({
+                if (!binding.root.isAttachedToWindow) return@postDelayed
+                onPlaylistLongClick(binding.root, item)
+            }, LONG_PRESS_DIALOG_DELAY_MS)
+            true
         }
+    }
     }
 
     private class DiffCallback : DiffUtil.ItemCallback<PlaylistUI>() {
@@ -60,5 +89,12 @@ class PlaylistsAdapter : ListAdapter<PlaylistUI, PlaylistsAdapter.PlaylistViewHo
         override fun areContentsTheSame(oldItem: PlaylistUI, newItem: PlaylistUI): Boolean {
             return oldItem == newItem
         }
+    }
+
+    companion object {
+        private const val PRESS_SCALE = 0.97f
+        private const val PRESS_ANIM_DURATION_MS = 80L
+        private const val RELEASE_ANIM_DURATION_MS = 120L
+        private const val LONG_PRESS_DIALOG_DELAY_MS = 120L
     }
 }
