@@ -28,4 +28,30 @@
     <string name="no_favorite_tracks">Ваша медиатека пуста</string>
     <string name="favorite_tracks">Избранные треки</string>
     <string name="playlists">Плейлисты</string>
+    <string name="create_playlist_title">Новый плейлист</string>
+    <string name="playlist_name_hint">Название*</string>
+    <string name="playlist_description_hint">Описание</string>
+    <string name="create_playlist_button">Создать</string>
+    <string name="playlist_cover">Обложка плейлиста</string>
+    <string name="playlist_created">Плейлист %1$s создан</string>
+    <string name="exit_create_playlist_title">Завершить создание плейлиста?</string>
+    <string name="exit_create_playlist_message">Все несохраненные данные будут потеряны</string>
+    <string name="exit_create_playlist_cancel">Отмена</string>
+    <string name="exit_create_playlist_confirm">Завершить</string>
+    <string name="add_to_playlist_title">Добавить в плейлист</string>
+    <string name="playlist_added">Добавлено в плейлист %1$s</string>
+    <string name="playlist_already_added">Трек уже добавлен в плейлист %1$s</string>
+    <string name="permission_title">Доступ к фото</string>
+    <string name="permission_rationale">Разрешите доступ к фото, чтобы выбрать обложку плейлиста.</string>
+    <string name="permission_settings_message">Разрешение отключено. Включите доступ к фото в настройках приложения.</string>
+    <string name="permission_allow">Разрешить</string>
+    <string name="permission_settings">Настройки</string>
+    <string name="permission_cancel">Отмена</string>
+    <string name="permission_denied">Доступ к фото отклонен</string>
+    <plurals name="tracks_count">
+        <item quantity="one">%d трек</item>
+        <item quantity="few">%d трека</item>
+        <item quantity="many">%d треков</item>
+        <item quantity="other">%d треков</item>
+    </plurals>
 </resources>

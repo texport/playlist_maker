@@ -6,6 +6,7 @@ import com.mybrain.playlistmaker.data.datasource.local.SearchHistoryLocalDataSou
 import com.mybrain.playlistmaker.data.datasource.local.ThemePreferencesLocalDataSource
 import com.mybrain.playlistmaker.data.datasource.remote.ItunesRemoteDataSource
 import com.mybrain.playlistmaker.data.db.AppDatabase
+import com.mybrain.playlistmaker.data.storage.PlaylistImageStorage
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -26,7 +27,14 @@ val dataSourceModule = module {
             androidContext(),
             AppDatabase::class.java,
             "database.db"
-        ).build()
+        )
+            .build()
     }
+    single { get<AppDatabase>().trackDao() }
     single { get<AppDatabase>().favoriteTracksDao() }
+    single { get<AppDatabase>().playlistDao() }
+    single { get<AppDatabase>().playlistTracksDao() }
+
+    // storage
+    single { PlaylistImageStorage(androidContext()) }
 }

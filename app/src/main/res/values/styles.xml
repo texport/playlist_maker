@@ -103,6 +103,17 @@
         <item name="android:textColor">@color/second_background</item>
     </style>
 
+    <style name="Button_Create_Playlist_Style" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="backgroundTint">@null</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="elevation">0dp</item>
+        <item name="android:background">@drawable/rounded_button_8</item>
+
+        <!-- Подключаем стиль текста -->
+        <item name="android:textAppearance">@style/Text_YS_Medium_16</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
     <!-- YS Bold -->
     <style name="Text_YS_Bold_32">
         <item name="android:fontFamily">@font/ys_bold</item>
@@ -176,5 +187,17 @@
         <item name="android:fontFamily">@font/ys_regular</item>
         <item name="android:textSize">@dimen/text_size_11</item>
         <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="CreatePlaylist_Hint_Expanded">
+        <item name="android:fontFamily">@font/ys_regular</item>
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:textColor">@color/main_text_color</item>
+    </style>
+
+    <style name="CreatePlaylist_Hint_Collapsed">
+        <item name="android:fontFamily">@font/ys_regular</item>
+        <item name="android:textSize">@dimen/text_size_12</item>
+        <item name="android:textColor">@color/gray</item>
     </style>
 </resources>

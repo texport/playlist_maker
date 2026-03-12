@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.navigation.safeargs)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -24,7 +25,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -37,6 +38,16 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    lint {
+        abortOnError = true
+        checkDependencies = true
+    }
+}
+
+ktlint {
+    android.set(true)
+    ignoreFailures.set(false)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
@@ -63,7 +74,8 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.koin.android)
-    
+    implementation(libs.peko)
+
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -71,4 +83,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+tasks.named("check") {
+    dependsOn("lint")
 }

@@ -7,8 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mybrain.playlistmaker.Utils
 import com.mybrain.playlistmaker.domain.interactors.FavoriteTracksInteractor
+import com.mybrain.playlistmaker.domain.interactors.PlaylistsInteractor
+import com.mybrain.playlistmaker.presentation.entity.PlaylistUI
 import com.mybrain.playlistmaker.presentation.entity.TrackUI
+import com.mybrain.playlistmaker.presentation.mappers.toDomain
 import com.mybrain.playlistmaker.presentation.mappers.toTrackDomain
+import com.mybrain.playlistmaker.presentation.mappers.toUI
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -16,7 +21,8 @@ import kotlinx.coroutines.launch
 class PlayerViewModel(
         private val track: TrackUI,
         private val mediaPlayer: MediaPlayer,
-        private val favoriteTracksInteractor: FavoriteTracksInteractor
+        private val favoriteTracksInteractor: FavoriteTracksInteractor,
+        private val playlistsInteractor: PlaylistsInteractor
 ) : ViewModel() {
 
     private var timerJob: Job? = null
@@ -33,6 +39,12 @@ class PlayerViewModel(
             )
     val uiState: LiveData<PlayerUiState> = _uiState
 
+    private val _playlists = MutableLiveData<List<PlaylistUI>>()
+    val playlists: LiveData<List<PlaylistUI>> = _playlists
+
+    private val _addToPlaylistState = MutableLiveData<AddToPlaylistState?>()
+    val addToPlaylistState: LiveData<AddToPlaylistState?> = _addToPlaylistState
+
     init {
         preparePlayer(track.previewUrl)
         viewModelScope.launch {
@@ -42,6 +54,30 @@ class PlayerViewModel(
                 _uiState.value = current.copy(isFavorite = inFavorites)
             }
         }
+    }
+
+    fun loadPlaylists() {
+        viewModelScope.launch {
+            val items = playlistsInteractor.getPlaylists().first().map { it.toUI() }
+            _playlists.value = items
+        }
+    }
+
+    fun onPlaylistClicked(playlist: PlaylistUI) {
+        viewModelScope.launch {
+            val alreadyAdded =
+                playlistsInteractor.isTrackInPlaylist(playlist.playlistId, track.trackId)
+            if (alreadyAdded) {
+                _addToPlaylistState.value = AddToPlaylistState.AlreadyAdded(playlist.name)
+            } else {
+                playlistsInteractor.addTrackToPlaylist(playlist.toDomain(), track.toTrackDomain())
+                _addToPlaylistState.value = AddToPlaylistState.Added(playlist.name)
+            }
+        }
+    }
+
+    fun resetAddToPlaylistState() {
+        _addToPlaylistState.value = null
     }
 
     fun onFavoriteClicked() {

@@ -1,5 +1,6 @@
 package com.mybrain.playlistmaker.data.mappers
 
+import com.mybrain.playlistmaker.data.db.entity.FavoriteTrackEntity
 import com.mybrain.playlistmaker.data.db.entity.TrackEntity
 import com.mybrain.playlistmaker.domain.entity.TrackDomain
 
@@ -14,12 +15,18 @@ fun TrackDomain.toTrackEntity(): TrackEntity {
         releaseDate = releaseDate,
         primaryGenreName = primaryGenreName,
         country = country,
-        previewUrl = previewUrl,
-        timestamp = System.currentTimeMillis()
+        previewUrl = previewUrl
     )
 }
 
-fun TrackEntity.toDomain(): TrackDomain {
+fun TrackDomain.toFavoriteTrackEntity(): FavoriteTrackEntity {
+    return FavoriteTrackEntity(
+        trackId = trackId,
+        addedAt = System.currentTimeMillis()
+    )
+}
+
+fun TrackEntity.toDomain(isFavorite: Boolean = false): TrackDomain {
     return TrackDomain(
         trackId = trackId,
         trackName = trackName,
@@ -31,6 +38,6 @@ fun TrackEntity.toDomain(): TrackDomain {
         primaryGenreName = primaryGenreName,
         country = country,
         previewUrl = previewUrl,
-        isFavorite = true
+        isFavorite = isFavorite
     )
 }
