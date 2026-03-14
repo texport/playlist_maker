@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -29,6 +30,7 @@ import com.mybrain.playlistmaker.databinding.FragmentCreatePlaylistBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import java.io.File
 
 class CreatePlaylistFragment : Fragment() {
 
@@ -38,6 +40,7 @@ class CreatePlaylistFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var selectedCoverUri: Uri? = null
+    private val args by navArgs<CreatePlaylistFragmentArgs>()
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -63,6 +66,7 @@ class CreatePlaylistFragment : Fragment() {
         updateCreateButtonState()
         setupHintStyles()
         updateHintColors()
+        setupEditMode(savedInstanceState == null)
 
         binding.toolbar.setNavigationOnClickListener {
             handleClose()
@@ -120,22 +124,44 @@ class CreatePlaylistFragment : Fragment() {
         }
 
         binding.btnCreate.setOnClickListener {
-            viewModel.createPlaylist(
-                name = binding.etName.text.toString().trim(),
-                description = binding.etDescription.text.toString().trim().ifBlank { null },
-                coverUri = selectedCoverUri?.toString()
-            )
+            val name = binding.etName.text.toString().trim()
+            val description = binding.etDescription.text.toString().trim().ifBlank { null }
+            val cover = selectedCoverUri?.toString()
+            if (isEditMode()) {
+                viewModel.updatePlaylist(args.playlistId, name, description, cover)
+            } else {
+                viewModel.createPlaylist(name, description, cover)
+            }
         }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
-            if (state is CreatePlaylistState.Created) {
-                parentFragmentManager.setFragmentResult(
-                    PLAYLIST_CREATED_RESULT,
-                    bundleOf(PLAYLIST_NAME_KEY to state.playlistName)
-                )
-                viewModel.resetState()
-                findNavController().navigateUp()
+            when (state) {
+                is CreatePlaylistState.Created -> {
+                    if (!isEditMode()) {
+                        parentFragmentManager.setFragmentResult(
+                            PLAYLIST_CREATED_RESULT,
+                            bundleOf(PLAYLIST_NAME_KEY to state.playlistName)
+                        )
+                    }
+                    viewModel.resetState()
+                    findNavController().navigateUp()
+                }
+                CreatePlaylistState.Updated -> {
+                    viewModel.resetState()
+                    findNavController().navigateUp()
+                }
+                CreatePlaylistState.Idle -> Unit
             }
+        }
+
+        viewModel.editPlaylist.observe(viewLifecycleOwner) { playlist ->
+            if (playlist == null || !isEditMode()) return@observe
+            binding.etName.setText(playlist.name)
+            binding.etDescription.setText(playlist.description.orEmpty())
+            selectedCoverUri = playlist.coverPath?.let { toCoverUri(it) }
+            renderCover()
+            updateCreateButtonState()
+            updateHintColors()
         }
 
         viewModel.permissionState.observe(viewLifecycleOwner) { state ->
@@ -188,7 +214,7 @@ class CreatePlaylistFragment : Fragment() {
         binding.etDescription.setText(savedInstanceState.getString(KEY_DESCRIPTION, ""))
         val cover = savedInstanceState.getString(KEY_COVER_URI)
         if (!cover.isNullOrBlank()) {
-            selectedCoverUri = cover.toUri()
+            selectedCoverUri = toCoverUri(cover)
             renderCover()
         }
     }
@@ -277,6 +303,10 @@ class CreatePlaylistFragment : Fragment() {
     }
 
     private fun handleClose() {
+        if (isEditMode()) {
+            findNavController().navigateUp()
+            return
+        }
         if (hasUnsavedChanges()) {
             showExitDialog()
         } else {
@@ -339,6 +369,14 @@ class CreatePlaylistFragment : Fragment() {
             .show()
     }
 
+    private fun toCoverUri(value: String): Uri {
+        return if (value.contains("://")) {
+            value.toUri()
+        } else {
+            File(value).toUri()
+        }
+    }
+
     companion object {
         private const val KEY_NAME = "playlist_name"
         private const val KEY_DESCRIPTION = "playlist_description"
@@ -346,4 +384,15 @@ class CreatePlaylistFragment : Fragment() {
         const val PLAYLIST_CREATED_RESULT = "playlist_created_result"
         const val PLAYLIST_NAME_KEY = "playlist_name_key"
     }
+
+    private fun setupEditMode(loadData: Boolean) {
+        if (!isEditMode()) return
+        binding.toolbar.setTitle(R.string.edit_playlist_title)
+        binding.btnCreate.setText(R.string.save_playlist_button)
+        if (loadData) {
+            viewModel.loadPlaylistForEdit(args.playlistId)
+        }
+    }
+
+    private fun isEditMode(): Boolean = args.playlistId > 0
 }

@@ -21,11 +21,45 @@ class PlaylistsInteractorImpl(
         return playlistsRepository.getPlaylists()
     }
 
+    override fun getPlaylist(playlistId: Long): Flow<PlaylistDomain?> {
+        return playlistsRepository.getPlaylist(playlistId)
+    }
+
+    override fun getPlaylistTracks(playlistId: Long): Flow<List<TrackDomain>> {
+        return playlistsRepository.getPlaylistTracks(playlistId)
+    }
+
     override suspend fun isTrackInPlaylist(playlistId: Long, trackId: Long): Boolean {
         return playlistsRepository.isTrackInPlaylist(playlistId, trackId)
     }
 
     override suspend fun addTrackToPlaylist(playlistDomain: PlaylistDomain, track: TrackDomain) {
         playlistsRepository.addTrackToPlaylist(playlistDomain, track)
+    }
+
+    override suspend fun deleteTrackFromPlaylist(playlistId: Long, trackId: Long) {
+        playlistsRepository.deleteTrackFromPlaylist(playlistId, trackId)
+    }
+
+    override suspend fun deletePlaylist(playlistId: Long) {
+        playlistsRepository.deletePlaylist(playlistId)
+    }
+
+    override suspend fun updatePlaylistDetails(
+        playlistId: Long,
+        name: String,
+        description: String?,
+        coverUri: String?,
+        currentCoverPath: String?,
+        tracksCount: Int
+    ) {
+        playlistsRepository.updatePlaylistDetails(
+            playlistId = playlistId,
+            name = name,
+            description = description,
+            coverUri = coverUri,
+            currentCoverPath = currentCoverPath,
+            tracksCount = tracksCount
+        )
     }
 }
