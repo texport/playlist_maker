@@ -33,7 +33,7 @@ class PlayerFragment : Fragment() {
     private lateinit var tvTitle: TextView
     private lateinit var tvAuthor: TextView
     private lateinit var tvProgress: TextView
-    private lateinit var btnPlayPause: ImageButton
+    private lateinit var btnPlayPause: PlaybackButtonView
     private lateinit var btnAddToPlaylist: ImageButton
     private lateinit var btnFavorite: ImageButton
     private lateinit var itemDuration: View
@@ -155,10 +155,7 @@ class PlayerFragment : Fragment() {
             tvProgress.text = state.progress
 
             btnPlayPause.isEnabled = state.isPlayButtonEnabled
-            btnPlayPause.setBackgroundResource(
-                if (state.isPlaying) R.drawable.ic_pause_button_100
-                else R.drawable.ic_play_button_100
-            )
+            btnPlayPause.setPlaying(state.isPlaying)
 
             btnFavorite.setBackgroundResource(
                 if (state.isFavorite) R.drawable.ic_like_button_active_51

@@ -25,16 +25,16 @@
         app:layout_constraintEnd_toStartOf="@id/btnPlay" />
 
     <!-- Центральная play-кнопка -->
-    <ImageButton
+    <com.mybrain.playlistmaker.presentation.player.PlaybackButtonView
         android:id="@+id/btnPlay"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:scaleType="centerInside"
-        android:background="@drawable/ic_play_button_100"
         app:layout_constraintTop_toTopOf="parent"
         android:clickable="true"
         android:focusable="true"
         android:foreground="@drawable/ripple_circle"
+        app:playImage="@drawable/ic_play_button_100"
+        app:pauseImage="@drawable/ic_pause_button_100"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintWidth_max="400dp"
