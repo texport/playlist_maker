@@ -66,6 +66,7 @@
     <string name="add_to_playlist_title">Add to playlist</string>
     <string name="playlist_added">Added to playlist %1$s</string>
     <string name="playlist_already_added">Track is already in playlist %1$s</string>
+    <string name="playback_progress_placeholder" translatable="false">00:00</string>
     <plurals name="tracks_count">
         <item quantity="one">%d track</item>
         <item quantity="other">%d tracks</item>
