@@ -1,11 +1,15 @@
 package com.mybrain.playlistmaker.presentation.player
 
-import android.media.MediaPlayer
+import android.content.Context
+import android.os.Build
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mybrain.playlistmaker.Utils
+import com.mybrain.playlistmaker.R
 import com.mybrain.playlistmaker.domain.interactors.FavoriteTracksInteractor
 import com.mybrain.playlistmaker.domain.interactors.PlaylistsInteractor
 import com.mybrain.playlistmaker.presentation.entity.PlaylistUI
@@ -15,25 +19,35 @@ import com.mybrain.playlistmaker.presentation.mappers.toTrackDomain
 import com.mybrain.playlistmaker.presentation.mappers.toUI
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(
+        private val appContext: Context,
         private val track: TrackUI,
-        private val mediaPlayer: MediaPlayer,
         private val favoriteTracksInteractor: FavoriteTracksInteractor,
         private val playlistsInteractor: PlaylistsInteractor
 ) : ViewModel() {
 
-    private var timerJob: Job? = null
-    private var shouldPlayWhenPrepared = false
+    private val progressPlaceholder: String =
+            appContext.getString(R.string.playback_progress_placeholder)
+
+    private var playerController: PlayerServiceController? = null
+    private var playbackStateJob: Job? = null
+    private var isNotificationsPermissionGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+    private val processObserver = LifecycleEventObserver { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_STOP -> maybeShowNotification()
+            Lifecycle.Event.ON_START -> playerController?.hidePlaybackNotification()
+            else -> Unit
+        }
+    }
 
     private val _uiState =
             MutableLiveData(
                     PlayerUiState(
                             track = track,
+                            progress = progressPlaceholder,
                             playbackState = PlaybackState.IDLE,
-                            progress = "00:00",
                             isFavorite = track.isFavorite
                     )
             )
@@ -46,7 +60,7 @@ class PlayerViewModel(
     val addToPlaylistState: LiveData<AddToPlaylistState?> = _addToPlaylistState
 
     init {
-        preparePlayer(track.previewUrl)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(processObserver)
         viewModelScope.launch {
             val inFavorites = favoriteTracksInteractor.isTrackInFavorites(track.trackId)
             val current = _uiState.value ?: return@launch
@@ -100,105 +114,64 @@ class PlayerViewModel(
         val current = _uiState.value ?: return
 
         when (current.playbackState) {
-            PlaybackState.IDLE -> {
-                shouldPlayWhenPrepared = true
-            }
-            PlaybackState.PREPARED, PlaybackState.COMPLETED -> {
-                startPlayback()
+            PlaybackState.IDLE, PlaybackState.PREPARED, PlaybackState.COMPLETED -> {
+                playerController?.startPlayback()
             }
             PlaybackState.PLAYING -> {
-                pausePlayback()
+                playerController?.pausePlayback()
             }
             PlaybackState.PAUSED -> {
-                resumePlayback()
+                playerController?.startPlayback()
             }
         }
     }
 
-    fun onScreenPaused() {
-        val current = _uiState.value ?: return
-        if (current.playbackState == PlaybackState.PLAYING) {
-            pausePlayback()
-        }
-    }
+    fun attachPlayerController(controller: PlayerServiceController) {
+        playerController = controller
+        playbackStateJob?.cancel()
+        playbackStateJob =
+            viewModelScope.launch {
+                controller.playbackState().collect { serviceState ->
+                    val current = _uiState.value ?: return@collect
+                    _uiState.value = current.copy(
+                        playbackState = serviceState.playbackState,
+                        progress = serviceState.progress
+                    )
 
-    fun releasePlayer() {
-        stopProgressUpdates()
-        runCatching { mediaPlayer.stop() }
-        runCatching { mediaPlayer.reset() }
-        runCatching { mediaPlayer.release() }
-    }
-
-    private fun preparePlayer(previewUrl: String?) {
-        if (previewUrl.isNullOrBlank()) {
-            _uiState.value =
-                    _uiState.value?.copy(playbackState = PlaybackState.IDLE, progress = "00:00")
-            return
-        }
-
-        mediaPlayer.setDataSource(previewUrl)
-
-        mediaPlayer.setOnPreparedListener {
-            val current = _uiState.value ?: return@setOnPreparedListener
-            _uiState.value =
-                    current.copy(playbackState = PlaybackState.PREPARED, progress = "00:00")
-
-            if (shouldPlayWhenPrepared) {
-                shouldPlayWhenPrepared = false
-                startPlayback()
-            }
-        }
-
-        mediaPlayer.setOnCompletionListener {
-            val current = _uiState.value ?: return@setOnCompletionListener
-            stopProgressUpdates()
-            _uiState.value =
-                    current.copy(playbackState = PlaybackState.COMPLETED, progress = "00:00")
-        }
-
-        mediaPlayer.prepareAsync()
-    }
-
-    private fun startPlayback() {
-        mediaPlayer.start()
-        val current = _uiState.value ?: return
-        _uiState.value = current.copy(playbackState = PlaybackState.PLAYING)
-        startProgressUpdates()
-    }
-
-    private fun resumePlayback() = startPlayback()
-
-    private fun pausePlayback() {
-        mediaPlayer.pause()
-        val current = _uiState.value ?: return
-        _uiState.value = current.copy(playbackState = PlaybackState.PAUSED)
-        stopProgressUpdates()
-    }
-
-    private fun startProgressUpdates() {
-        timerJob =
-                viewModelScope.launch {
-                    while (mediaPlayer.isPlaying) {
-                        val current = _uiState.value ?: break
-                        _uiState.value =
-                                current.copy(
-                                        progress = Utils.formatTime(mediaPlayer.currentPosition)
-                                )
-                        delay(UPDATE_DELAY_MS)
+                    if (serviceState.playbackState != PlaybackState.PLAYING) {
+                        controller.hidePlaybackNotification()
                     }
                 }
+            }
     }
 
-    private fun stopProgressUpdates() {
-        timerJob?.cancel()
+    fun detachPlayerController() {
+        playbackStateJob?.cancel()
+        playbackStateJob = null
+        playerController = null
+    }
+
+    fun onNotificationsPermissionChanged(granted: Boolean) {
+        isNotificationsPermissionGranted = granted
+        if (!granted) {
+            playerController?.hidePlaybackNotification()
+        } else {
+            maybeShowNotification()
+        }
+    }
+
+    private fun maybeShowNotification() {
+        if (!isNotificationsPermissionGranted) return
+        val current = _uiState.value ?: return
+        if (current.playbackState == PlaybackState.PLAYING) {
+            playerController?.showPlaybackNotification()
+        }
     }
 
     override fun onCleared() {
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(processObserver)
+        playerController?.hidePlaybackNotification()
+        detachPlayerController()
         super.onCleared()
-        releasePlayer()
-    }
-
-    companion object {
-        private const val UPDATE_DELAY_MS = 300L
     }
 }

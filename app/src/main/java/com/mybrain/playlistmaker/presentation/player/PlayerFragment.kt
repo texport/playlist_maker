@@ -1,5 +1,12 @@
 package com.mybrain.playlistmaker.presentation.player
 
+import android.Manifest
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +16,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.view.Gravity
 import android.util.TypedValue
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -50,6 +59,12 @@ class PlayerFragment : Fragment() {
     }
 
     private val args by navArgs<PlayerFragmentArgs>()
+    private var isServiceBound = false
+    private var playerServiceConnection: ServiceConnection? = null
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            viewModel.onNotificationsPermissionChanged(granted)
+        }
 
     private val viewModel: PlayerViewModel by viewModel {
         parametersOf(args.track)
@@ -70,6 +85,8 @@ class PlayerFragment : Fragment() {
         initBottomSheet(view)
         bindStaticTrackInfo(args.track)
         observeViewModel()
+        updateNotificationPermissionState()
+        bindPlayerService(args.track)
 
         btnPlayPause.setOnClickListener {
             viewModel.onPlayPauseClicked()
@@ -85,14 +102,10 @@ class PlayerFragment : Fragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.onScreenPaused()
-    }
-
     override fun onDestroyView() {
+        unbindPlayerService()
+        viewModel.detachPlayerController()
         super.onDestroyView()
-        viewModel.releasePlayer()
     }
 
     private fun initViews(view: View) {
@@ -267,6 +280,59 @@ class PlayerFragment : Fragment() {
             releaseDate.substring(0, 4)
         } else {
             null
+        }
+    }
+
+    private fun bindPlayerService(track: TrackUI) {
+        val serviceConnection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: android.os.IBinder?) {
+                val binder = service as? AudioPlayerService.LocalBinder ?: return
+                isServiceBound = true
+                viewModel.attachPlayerController(binder.getService())
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                isServiceBound = false
+                viewModel.detachPlayerController()
+            }
+        }
+
+        playerServiceConnection = serviceConnection
+
+        val intent = Intent(requireContext(), AudioPlayerService::class.java).apply {
+            putExtra(AudioPlayerService.EXTRA_PREVIEW_URL, track.previewUrl)
+            putExtra(AudioPlayerService.EXTRA_ARTIST_NAME, track.artistName)
+            putExtra(AudioPlayerService.EXTRA_TRACK_NAME, track.trackName)
+        }
+        requireContext().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun unbindPlayerService() {
+        val serviceConnection = playerServiceConnection ?: return
+        if (!isServiceBound) {
+            playerServiceConnection = null
+            return
+        }
+
+        requireContext().unbindService(serviceConnection)
+        isServiceBound = false
+        playerServiceConnection = null
+    }
+
+    private fun updateNotificationPermissionState() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            viewModel.onNotificationsPermissionChanged(true)
+            return
+        }
+
+        val isGranted = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        viewModel.onNotificationsPermissionChanged(isGranted)
+        if (!isGranted) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 }
