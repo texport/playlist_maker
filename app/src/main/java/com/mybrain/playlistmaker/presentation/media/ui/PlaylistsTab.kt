@@ -39,6 +39,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -224,12 +226,20 @@ private fun PlaylistGridCell(
         }
         Text(
             text = playlist.name,
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            fontFamily = FontFamily(Font(R.font.ys_regular)),
-            fontSize = 12.sp,
-            color = colorResource(R.color.main_text_color),
+            style =
+                TextStyle(
+                    fontFamily = FontFamily(Font(R.font.ys_regular)),
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    color = colorResource(R.color.main_text_color),
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                ),
         )
         Text(
             text = context.resources.getQuantityString(
@@ -238,9 +248,14 @@ private fun PlaylistGridCell(
                 playlist.tracksCount,
             ),
             modifier = Modifier.fillMaxWidth(),
-            fontFamily = FontFamily(Font(R.font.ys_regular)),
-            fontSize = 12.sp,
-            color = colorResource(R.color.main_text_color),
+            style =
+                TextStyle(
+                    fontFamily = FontFamily(Font(R.font.ys_regular)),
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    color = colorResource(R.color.main_text_color),
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                ),
         )
     }
 }

@@ -1,6 +1,9 @@
+@file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+
 package com.mybrain.playlistmaker.presentation.search.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,17 +45,27 @@ fun SearchTrackRow(
     track: TrackUI,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val trackNameFont = FontFamily(Font(R.font.ys_regular))
     val artistFont = FontFamily(Font(R.font.ys_regular))
 
+    val interactionModifier =
+        if (onLongClick != null) {
+            Modifier.combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick,
+            )
+        } else {
+            Modifier.clickable(onClick = onClick)
+        }
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(61.dp)
             .background(colorResource(R.color.second_background))
-            .clickable(onClick = onClick),
+            .then(interactionModifier),
         verticalAlignment = Alignment.Top,
     ) {
         Spacer(modifier = Modifier.width(13.dp))

@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.navigation.safeargs)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
 }
@@ -55,6 +54,7 @@ ktlint {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
     }
 }
 
@@ -75,9 +75,9 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.preference)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
     implementation(libs.peko)
 
     implementation(libs.kotlinx.coroutines.android)

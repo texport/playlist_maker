@@ -28,26 +28,23 @@ class PlaybackButtonView @JvmOverloads constructor(
 
     init {
         isClickable = true
+        var playResId = 0
+        var pauseResId = 0
         if (attrs != null) {
             val typedArray = context.obtainStyledAttributes(
                 attrs,
                 R.styleable.PlaybackButtonView,
                 defStyleAttr,
-                0
+                0,
             )
-            val playResId = typedArray.getResourceId(
-                R.styleable.PlaybackButtonView_playImage,
-                0
-            )
-            val pauseResId = typedArray.getResourceId(
-                R.styleable.PlaybackButtonView_pauseImage,
-                0
-            )
+            playResId = typedArray.getResourceId(R.styleable.PlaybackButtonView_playImage, 0)
+            pauseResId = typedArray.getResourceId(R.styleable.PlaybackButtonView_pauseImage, 0)
             typedArray.recycle()
-
-            playBitmap = loadBitmap(playResId)
-            pauseBitmap = loadBitmap(pauseResId)
         }
+        if (playResId == 0) playResId = R.drawable.ic_play_button_100
+        if (pauseResId == 0) pauseResId = R.drawable.ic_pause_button_100
+        playBitmap = loadBitmap(playResId)
+        pauseBitmap = loadBitmap(pauseResId)
     }
 
     fun setPlaying(isPlaying: Boolean) {
@@ -82,7 +79,6 @@ class PlaybackButtonView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 isPressed = false
-                toggleState()
                 performClick()
                 true
             }
@@ -96,11 +92,6 @@ class PlaybackButtonView @JvmOverloads constructor(
 
     override fun performClick(): Boolean {
         return super.performClick()
-    }
-
-    private fun toggleState() {
-        isPlaying = !isPlaying
-        invalidate()
     }
 
     private fun loadBitmap(resId: Int): Bitmap? {

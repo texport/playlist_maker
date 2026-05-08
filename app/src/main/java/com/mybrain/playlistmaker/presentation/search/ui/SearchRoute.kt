@@ -251,7 +251,6 @@ private fun RowSearchField(
                 fontFamily = regular,
             ),
             singleLine = true,
-            // XML uses @drawable/custom_cursor with @color/blue.
             cursorBrush = SolidColor(colorResource(R.color.blue)),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(

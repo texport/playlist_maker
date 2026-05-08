@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -34,6 +38,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -117,9 +122,9 @@ fun SettingsScreen(
     onLicenseClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val containerPaddingV = 21.dp
-    val containerPaddingH = dimensionResource(R.dimen.spacing_16)
-    val titlePadding = dimensionResource(R.dimen.spacing_16)
+    val rowHorizontal = dimensionResource(R.dimen.spacing_16)
+    val rowVertical = 14.dp
+    val titleBelowSpacing = 12.dp
     val textIconGap = dimensionResource(R.dimen.spacing_8)
     val iconSize = 24.dp
 
@@ -131,21 +136,29 @@ fun SettingsScreen(
         Text(
             text = stringResource(R.string.settings),
             style = settingsTitleStyle,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(titlePadding),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = rowHorizontal,
+                        top = rowHorizontal,
+                        end = rowHorizontal,
+                        bottom = titleBelowSpacing,
+                    ),
         )
 
         ThemeSwitchRow(
             isDarkTheme = isDarkTheme,
             onThemeSwitched = onThemeSwitched,
+            rowHorizontal = rowHorizontal,
+            rowVertical = rowVertical,
         )
 
         SettingsClickableRow(
             label = stringResource(R.string.share),
             iconRes = R.drawable.ic_share_24,
-            containerPaddingH = containerPaddingH,
-            containerPaddingV = containerPaddingV,
+            rowHorizontal = rowHorizontal,
+            rowVertical = rowVertical,
             textIconGap = textIconGap,
             iconSize = iconSize,
             onClick = onShareClick,
@@ -154,8 +167,8 @@ fun SettingsScreen(
         SettingsClickableRow(
             label = stringResource(R.string.support),
             iconRes = R.drawable.ic_support_24,
-            containerPaddingH = containerPaddingH,
-            containerPaddingV = containerPaddingV,
+            rowHorizontal = rowHorizontal,
+            rowVertical = rowVertical,
             textIconGap = textIconGap,
             iconSize = iconSize,
             onClick = onSupportClick,
@@ -164,8 +177,8 @@ fun SettingsScreen(
         SettingsClickableRow(
             label = stringResource(R.string.eula),
             iconRes = R.drawable.ic_arrow_24,
-            containerPaddingH = containerPaddingH,
-            containerPaddingV = containerPaddingV,
+            rowHorizontal = rowHorizontal,
+            rowVertical = rowVertical,
             textIconGap = textIconGap,
             iconSize = iconSize,
             onClick = onLicenseClick,
@@ -177,12 +190,15 @@ fun SettingsScreen(
 private fun ThemeSwitchRow(
     isDarkTheme: Boolean,
     onThemeSwitched: (Boolean) -> Unit,
+    rowHorizontal: Dp,
+    rowVertical: Dp,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorResource(R.color.second_background))
-            .padding(horizontal = 16.dp, vertical = 21.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(colorResource(R.color.second_background))
+                .padding(horizontal = rowHorizontal, vertical = rowVertical),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -191,10 +207,22 @@ private fun ThemeSwitchRow(
             style = settingsRowTextStyle,
             modifier = Modifier.weight(1f),
         )
-        Switch(
-            checked = isDarkTheme,
-            onCheckedChange = onThemeSwitched,
-        )
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            Switch(
+                modifier = Modifier.scale(0.9f),
+                checked = isDarkTheme,
+                onCheckedChange = onThemeSwitched,
+                colors =
+                    SwitchDefaults.colors(
+                        checkedThumbColor = colorResource(R.color.white),
+                        checkedTrackColor = colorResource(R.color.blue),
+                        checkedBorderColor = Color.Transparent,
+                        uncheckedThumbColor = colorResource(R.color.white),
+                        uncheckedTrackColor = colorResource(R.color.switch_track_off),
+                        uncheckedBorderColor = Color.Transparent,
+                    ),
+            )
+        }
     }
 }
 
@@ -202,24 +230,25 @@ private fun ThemeSwitchRow(
 private fun SettingsClickableRow(
     label: String,
     iconRes: Int,
-    containerPaddingH: Dp,
-    containerPaddingV: Dp,
+    rowHorizontal: Dp,
+    rowVertical: Dp,
     textIconGap: Dp,
     iconSize: Dp,
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorResource(R.color.second_background))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = ripple(),
-                role = Role.Button,
-                onClick = onClick,
-            )
-            .padding(horizontal = containerPaddingH, vertical = containerPaddingV),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(colorResource(R.color.second_background))
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = ripple(),
+                    role = Role.Button,
+                    onClick = onClick,
+                )
+                .padding(horizontal = rowHorizontal, vertical = rowVertical),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {

@@ -1,5 +1,3 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-
 package com.mybrain.playlistmaker.presentation.settings.ui
 
 import android.content.res.Configuration
@@ -9,6 +7,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -66,14 +65,13 @@ fun EulaScreen(
                 titleContentColor = colorResource(R.color.main_text_color),
                 navigationIconContentColor = colorResource(R.color.main_text_color),
             ),
+            windowInsets = WindowInsets(0, 0, 0, 0),
         )
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
         ) {
-            // Strict Level 1: переработанные экраны без AndroidView, кроме этого места —
-            // для загрузки пользовательского соглашения по URL нужен WebView.
             AndroidView(
                 factory = { context ->
                     WebView(context).apply {

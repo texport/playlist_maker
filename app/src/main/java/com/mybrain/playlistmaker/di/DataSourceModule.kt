@@ -13,15 +13,12 @@ import org.koin.dsl.module
 val dataSourceModule = module {
     single { Gson() }
 
-    // local
     single { PrefsLocalDataSource(androidContext()) }
     single { ThemePreferencesLocalDataSource(get()) }
     single { SearchHistoryLocalDataSource(get(), get()) }
 
-    // remote
     single { ItunesRemoteDataSource(get()) }
 
-    // db
     single { 
         androidx.room.Room.databaseBuilder(
             androidContext(),
@@ -35,6 +32,5 @@ val dataSourceModule = module {
     single { get<AppDatabase>().playlistDao() }
     single { get<AppDatabase>().playlistTracksDao() }
 
-    // storage
     single { PlaylistImageStorage(androidContext()) }
 }
