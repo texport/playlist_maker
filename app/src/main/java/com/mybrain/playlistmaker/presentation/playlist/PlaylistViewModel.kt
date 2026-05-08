@@ -21,6 +21,9 @@ class PlaylistViewModel(
     private val _playlist = MutableLiveData<PlaylistUI?>()
     val playlist: LiveData<PlaylistUI?> = _playlist
 
+    private val _playlistLookupSettled = MutableLiveData(false)
+    val playlistLookupSettled: LiveData<Boolean> = _playlistLookupSettled
+
     private val _tracks = MutableLiveData<List<TrackUI>>(emptyList())
     val tracks: LiveData<List<TrackUI>> = _tracks
 
@@ -56,6 +59,7 @@ class PlaylistViewModel(
         viewModelScope.launch {
             playlistsInteractor.getPlaylist(playlistId).collect { playlist ->
                 _playlist.value = playlist?.toUI()
+                _playlistLookupSettled.value = true
             }
         }
     }

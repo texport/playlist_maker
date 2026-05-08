@@ -1,6 +1,7 @@
 package com.mybrain.playlistmaker
 
 import android.app.Application
+import com.mybrain.playlistmaker.di.navigationModule
 import com.mybrain.playlistmaker.di.dataSourceModule
 import com.mybrain.playlistmaker.di.interactorModule
 import com.mybrain.playlistmaker.di.networkModule
@@ -30,7 +31,8 @@ class App : Application() {
                 repositoryModule,
                 interactorModule,
                 playerModule,
-                viewModelModule
+                navigationModule,
+                viewModelModule,
             )
         }
 

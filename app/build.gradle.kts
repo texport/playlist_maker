@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.navigation.safeargs)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
 }
@@ -37,6 +37,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        compose = true
     }
 
     lint {
@@ -53,6 +54,7 @@ ktlint {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
     }
 }
 
@@ -63,6 +65,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson)
     implementation(libs.glide)
+    implementation(libs.coil.compose)
     implementation(libs.logging.interceptor)
     ksp(libs.glide.ksp)
     implementation(libs.androidx.core.ktx)
@@ -70,15 +73,25 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.preference)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
     implementation(libs.peko)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.runtime.livedata)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
