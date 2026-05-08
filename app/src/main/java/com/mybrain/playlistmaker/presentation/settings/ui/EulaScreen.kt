@@ -72,6 +72,8 @@ fun EulaScreen(
                 .weight(1f)
                 .fillMaxWidth(),
         ) {
+            // Strict Level 1: переработанные экраны без AndroidView, кроме этого места —
+            // для загрузки пользовательского соглашения по URL нужен WebView.
             AndroidView(
                 factory = { context ->
                     WebView(context).apply {
