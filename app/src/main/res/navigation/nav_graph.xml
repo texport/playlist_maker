@@ -34,18 +34,7 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.mybrain.playlistmaker.presentation.settings.SettingsFragment"
-        android:label="fragment_settings"
-        tools:layout="@layout/fragment_settings" >
-        <action
-            android:id="@+id/action_settingsFragment_to_eulaFragment"
-            app:destination="@id/eulaFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/eulaFragment"
-        android:name="com.mybrain.playlistmaker.presentation.settings.EulaFragment"
-        android:label="fragment_eula"
-        tools:layout="@layout/fragment_eula" />
+        android:label="fragment_settings" />
 
     <fragment
         android:id="@+id/playerFragment"
